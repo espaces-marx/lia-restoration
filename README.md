@@ -41,7 +41,8 @@ The following were already part of the original LIA cleanup script and are re-im
 
 The following are new additions in this tool:
 
-- **Prettier formatting** — the cleaned HTML is automatically formatted with consistent 2-space indentation, making it easier to read and manually edit
+- **Prettier formatting** — the cleaned HTML is automatically formatted with consistent 2-space indentation, covering tables, lists, and all block elements
+- **Paragraph collapsing** — each `<p>` is collapsed to a single line after formatting
 - **Inline W3C validation** — rather than uploading to an external site, the Validate button submits the current editor content to the Nu HTML Checker API and shows errors and warnings directly in the tool, with clickable messages that jump to the relevant line
 - **LaTeX character cleanup** — replaces escaped characters like `\"a`, `\"u` with their proper Unicode equivalents (`ä`, `ü`, etc.)
 - **Infoblock cleanup** — normalises spacing and removes redundant spans around page numbers in the information block
@@ -50,8 +51,6 @@ The following are new additions in this tool:
 
 ## What still requires manual review
 
-- Collapsing multi-line paragraphs to single lines
-- Reformatting tables and lists to W3C indentation conventions
 - Replacing footer navigation tables with the standard LIA footer format
 - Removing `#...-GUESS` fragments from index hrefs
 - Filling in `[PLACEHOLDER FOOTNOTE]` entries using the anchor `id` attribute
