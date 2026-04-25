@@ -79,7 +79,7 @@
       cursor: not-allowed;
     }
 
-    #copy-btn {
+    #download-btn {
       padding: 7px 12px;
       background: transparent;
       color: #66d9e8;
@@ -92,8 +92,8 @@
       transition: background 0.15s, color 0.15s;
     }
 
-    #copy-btn:hover:not(:disabled) { background: #66d9e8; color: #272822; }
-    #copy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+    #download-btn:hover:not(:disabled) { background: #66d9e8; color: #272822; }
+    #download-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     #validate-btn {
       padding: 7px 12px;
@@ -341,7 +341,7 @@
       spellcheck="false"
     >
     <button id="fetch-btn">Fetch &amp; Clean</button>
-    <button id="copy-btn" disabled>Copy HTML</button>
+    <button id="download-btn" disabled>Download HTML</button>
     <button id="validate-btn" disabled>Validate</button>
     <button id="instructions-btn">Instructions</button>
   </div>
@@ -895,7 +895,7 @@ function infoTableCleanup(t) {
 
   const urlInput          = document.getElementById('url-input');
   const fetchBtn          = document.getElementById('fetch-btn');
-  const copyBtn           = document.getElementById('copy-btn');
+  const downloadBtn           = document.getElementById('copy-btn');
   const validateBtn       = document.getElementById('validate-btn');
   const previewFrame      = document.getElementById('preview-frame');
   const validationPanel   = document.getElementById('validation-panel');
@@ -925,7 +925,7 @@ function infoTableCleanup(t) {
     const content = editor.getValue();
     previewFrame.srcdoc = currentUrl ? injectBase(content, currentUrl) : content;
     const hasContent = content.length > 0;
-    copyBtn.disabled = !hasContent;
+    downloadBtn.disabled = !hasContent;
     validateBtn.disabled = !hasContent;
     if (!hasContent) {
       validationPanel.classList.remove('open');
@@ -939,7 +939,7 @@ function infoTableCleanup(t) {
 
     fetchBtn.disabled = true;
     fetchBtn.textContent = 'Fetching…';
-    copyBtn.disabled = true;
+    downloadBtn.disabled = true;
 
     try {
       const res = await fetchViaProxy(url);
@@ -964,7 +964,7 @@ function infoTableCleanup(t) {
 
       editor.setValue(cleaned, -1);
       previewFrame.srcdoc = injectBase(cleaned, url);
-      copyBtn.disabled = false;
+      downloadBtn.disabled = false;
 
     } catch (err) {
       alert(`Network error: ${err.message}`);
@@ -1053,11 +1053,14 @@ function infoTableCleanup(t) {
     }
   });
 
-  copyBtn.addEventListener('click', async () => {
-    await navigator.clipboard.writeText(editor.getValue());
-    const orig = copyBtn.textContent;
-    copyBtn.textContent = 'Copied!';
-    setTimeout(() => { copyBtn.textContent = orig; }, 1500);
+  downloadBtn.addEventListener('click', () => {
+    const blob = new Blob([editor.getValue()], { type: 'text/html' });
+    const a = Object.assign(document.createElement('a'), {
+      href: URL.createObjectURL(blob),
+      download: 'cleaned.html',
+    });
+    a.click();
+    URL.revokeObjectURL(a.href);
   });
 
   urlInput.addEventListener('keydown', e => {
