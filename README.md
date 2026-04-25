@@ -46,7 +46,7 @@ The following are new additions in this tool:
 - **Inline W3C validation** — rather than uploading to an external site, the Validate button submits the current editor content to the Nu HTML Checker API and shows errors and warnings directly in the tool, with clickable messages that jump to the relevant line
 - **Character conversion** — fixes garbled characters left by the LaTeX-to-HTML conversion tool (e.g. `\"a` → `ä`, `\"u` → `ü`); these are conversion artifacts that should never appear in valid HTML
 - **V. I. Lenin header (partial)** — attempts to collapse the linked `<h2>` header into `<h2>Vladimir Ilyich Lenin</h2>`; verify the result, as the pattern may not catch all variants
-- **Miscellaneous cleanup** — removes generator `<meta>` tags inserted by `tx2html.el`, normalises spacing in the infoblock, removes redundant spans around page numbers
+- **Generator `<meta>` tag removal** — strips `<meta name="generator">` and `<meta name="generated">` tags inserted by `tx2html.el`; these are no longer accurate once the file has been manually refactored
 
 ## What still requires manual review
 

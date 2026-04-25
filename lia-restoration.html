@@ -841,17 +841,6 @@ function characterCleanup(t) {
 function infoCleanup(t) {
   t = t.replaceAll(/<a [^>]*\.txt">(\w+)<\/a>/gm, `$1`);
   t = t.replaceAll(/<a [^>]*\.txt">(\W+)<\/a>/gm, `$1`);
-  t = t.replaceAll(`pages<span class="pages">`, `pages <span class="pages">`);
-  t = t.replaceAll(/<span class="pages">(.+)<\/span>/gm, `$1`);
-  t = t.replaceAll(`pages<span class="page">`, `pages <span class="page">`);
-  t = t.replaceAll(/<span class="page">(.+)<\/span>/gm, `$1`);
-  t = t.replaceAll(`<p class="information">\n\n<span`, `<p class="information">\n<span`);
-  t = t.replaceAll(`<br><span class="info">`, `<br>\n\n<span class="info">`);
-  t = t.replaceAll(`<span class="info" style="text-indent: 0%">\n\nPublished:`, `<span class="info" style="text-indent: 0%">Published:`);
-  t = t.replaceAll(`<span class="info" style="text-indent: 0%">\n\nWritten:`, `<span class="info" style="text-indent: 0%">Written:`);
-  t = t.replaceAll(`<span class="info">\n\n`, `<span class="info">`);
-  t = t.replaceAll(`</span>\n\n`, `</span> `);
-  t = t.replaceAll(`\n\n<br>`, `<br>`);
   return t;
 }
 
