@@ -170,19 +170,21 @@
     .val-text { color: #f8f8f2; }
 
     #instructions-btn {
-      padding: 7px 12px;
+      width: 30px;
+      height: 30px;
+      padding: 0;
       background: transparent;
-      color: #e69f00;
+      color: #75715e;
       border: 1px solid #3e3d32;
-      border-radius: 4px;
+      border-radius: 50%;
       cursor: pointer;
-      font-weight: 600;
-      font-size: 13px;
-      white-space: nowrap;
-      transition: background 0.15s, color 0.15s;
+      font-weight: 700;
+      font-size: 15px;
+      flex-shrink: 0;
+      transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
-    #instructions-btn:hover { background: #e69f00; color: #272822; }
+    #instructions-btn:hover { background: #3e3d32; color: #f8f8f2; border-color: #75715e; }
 
     .toolbar-sep {
       width: 1px;
@@ -353,7 +355,7 @@
     <button id="validate-btn" disabled>Validate</button>
     <button id="download-btn" disabled>Download HTML</button>
     <div class="toolbar-sep"></div>
-    <button id="instructions-btn">Instructions</button>
+    <button id="instructions-btn" title="Instructions &amp; help" aria-label="Help">?</button>
   </div>
 
   <div id="panes">
