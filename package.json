@@ -1,0 +1,12 @@
+{
+  "name": "lia-restoration",
+  "version": "1.0.0",
+  "description": "Local tool for restoring marxists.org HTML pages",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "express": "^5.1.0"
+  }
+}
