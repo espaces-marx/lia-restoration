@@ -44,7 +44,7 @@ The following are new additions in this tool:
 - **Prettier formatting** — the cleaned HTML is automatically formatted with consistent 2-space indentation, covering tables, lists, and all block elements
 - **Paragraph collapsing** — each `<p>` is collapsed to a single line after formatting
 - **Inline W3C validation** — rather than uploading to an external site, the Validate button submits the current editor content to the Nu HTML Checker API and shows errors and warnings directly in the tool, with clickable messages that jump to the relevant line
-- **LaTeX character cleanup** — replaces escaped characters like `\"a`, `\"u` with their proper Unicode equivalents (`ä`, `ü`, etc.)
+- **Character conversion** — fixes garbled characters left by the LaTeX-to-HTML conversion tool (e.g. `\"a` → `ä`, `\"u` → `ü`); these are conversion artifacts that should never appear in valid HTML
 - **Infoblock cleanup** — normalises spacing and removes redundant spans around page numbers in the information block
 - **Generator `<meta>` tag removal** — strips `<meta name="generator">` and `<meta name="generated">` tags inserted by the archive's conversion tool
 - **V. I. Lenin header (partial)** — attempts to collapse the linked `<h2>` header into `<h2>Vladimir Ilyich Lenin</h2>`; verify the result, as the pattern may not catch all variants
