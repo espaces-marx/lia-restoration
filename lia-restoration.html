@@ -809,7 +809,21 @@ function infoTableCleanup(t) {
   import * as prettier from 'https://unpkg.com/prettier@3/standalone.mjs';
   import * as prettierHtml from 'https://unpkg.com/prettier@3/plugins/html.mjs';
 
-  const CORS_PROXY = 'https://corsproxy.io/?url=';
+  const CORS_PROXIES = [
+    url => `https://corsproxy.io/?url=${encodeURIComponent(url)}`,
+    url => `https://api.allorigins.win/raw?url=${encodeURIComponent(url)}`,
+    url => `https://api.codetabs.com/v1/proxy?quest=${encodeURIComponent(url)}`,
+  ];
+
+  async function fetchViaProxy(url) {
+    for (const proxy of CORS_PROXIES) {
+      try {
+        const res = await fetch(proxy(url));
+        if (res.ok) return res;
+      } catch (_) {}
+    }
+    throw new Error('All proxies failed. Check your connection or try again later.');
+  }
 
   const editor = ace.edit('editor');
   editor.setTheme('ace/theme/monokai');
@@ -855,13 +869,7 @@ function infoTableCleanup(t) {
     copyBtn.disabled = true;
 
     try {
-      const res = await fetch(CORS_PROXY + encodeURIComponent(url));
-
-      if (!res.ok) {
-        alert(`Error: HTTP ${res.status}`);
-        return;
-      }
-
+      const res = await fetchViaProxy(url);
       const rawHTML = await res.text();
       let cleaned = cleanupHTML(rawHTML);
       currentUrl = url;
