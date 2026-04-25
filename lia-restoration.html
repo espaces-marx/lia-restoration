@@ -184,21 +184,6 @@
 
     #instructions-btn:hover { background: #e69f00; color: #272822; }
 
-    #prettier-label {
-      display: flex;
-      align-items: center;
-      gap: 5px;
-      font-size: 12px;
-      font-weight: 600;
-      color: #75715e;
-      cursor: pointer;
-      white-space: nowrap;
-      user-select: none;
-    }
-
-    #prettier-label input[type="checkbox"] { accent-color: #a6e22e; cursor: pointer; }
-    #prettier-label:hover { color: #a6e22e; }
-
     /* Modal */
     #modal-backdrop {
       display: none;
@@ -356,10 +341,6 @@
       spellcheck="false"
     >
     <button id="fetch-btn">Fetch &amp; Clean</button>
-    <label id="prettier-label">
-      <input type="checkbox" id="prettier-toggle" checked>
-      Prettier
-    </label>
     <button id="copy-btn" disabled>Copy HTML</button>
     <button id="validate-btn" disabled>Validate</button>
     <button id="instructions-btn">Instructions</button>
@@ -917,7 +898,6 @@ function infoTableCleanup(t) {
   const copyBtn           = document.getElementById('copy-btn');
   const validateBtn       = document.getElementById('validate-btn');
   const previewFrame      = document.getElementById('preview-frame');
-  const prettierToggle    = document.getElementById('prettier-toggle');
   const validationPanel   = document.getElementById('validation-panel');
   const validationSummary = document.getElementById('validation-summary');
   const validationMsgs    = document.getElementById('validation-messages');
@@ -967,19 +947,17 @@ function infoTableCleanup(t) {
       let cleaned = cleanupHTML(rawHTML);
       currentUrl = url;
 
-      if (prettierToggle.checked) {
-        fetchBtn.textContent = 'Formatting…';
-        try {
-          cleaned = await prettier.format(cleaned, {
-            parser: 'html',
-            plugins: [prettierHtml],
-            printWidth: 9999,
-            tabWidth: 2,
-            htmlWhitespaceSensitivity: 'css',
-          });
-        } catch (e) {
-          console.warn('Prettier failed, using unformatted output:', e);
-        }
+      fetchBtn.textContent = 'Formatting…';
+      try {
+        cleaned = await prettier.format(cleaned, {
+          parser: 'html',
+          plugins: [prettierHtml],
+          printWidth: 9999,
+          tabWidth: 2,
+          htmlWhitespaceSensitivity: 'css',
+        });
+      } catch (e) {
+        console.warn('Prettier failed, using unformatted output:', e);
       }
 
       cleaned = collapseparagraphs(cleaned);
