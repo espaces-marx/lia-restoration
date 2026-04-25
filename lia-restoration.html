@@ -184,6 +184,14 @@
 
     #instructions-btn:hover { background: #e69f00; color: #272822; }
 
+    .toolbar-sep {
+      width: 1px;
+      height: 24px;
+      background: #3e3d32;
+      flex-shrink: 0;
+      margin: 0 4px;
+    }
+
     /* Modal */
     #modal-backdrop {
       display: none;
@@ -341,8 +349,10 @@
       spellcheck="false"
     >
     <button id="fetch-btn">Fetch &amp; Clean</button>
-    <button id="download-btn" disabled>Download HTML</button>
+    <div class="toolbar-sep"></div>
     <button id="validate-btn" disabled>Validate</button>
+    <button id="download-btn" disabled>Download HTML</button>
+    <div class="toolbar-sep"></div>
     <button id="instructions-btn">Instructions</button>
   </div>
 
