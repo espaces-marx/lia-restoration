@@ -95,6 +95,80 @@
     #copy-btn:hover:not(:disabled) { background: #66d9e8; color: #272822; }
     #copy-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
+    #validate-btn {
+      padding: 7px 12px;
+      background: transparent;
+      color: #f92672;
+      border: 1px solid #3e3d32;
+      border-radius: 4px;
+      cursor: pointer;
+      font-weight: 600;
+      font-size: 13px;
+      white-space: nowrap;
+      transition: background 0.15s, color 0.15s;
+    }
+
+    #validate-btn:hover:not(:disabled) { background: #f92672; color: #272822; }
+    #validate-btn:disabled { opacity: 0.3; cursor: not-allowed; }
+
+    #validation-panel {
+      display: none;
+      flex-direction: column;
+      flex-shrink: 0;
+      max-height: 200px;
+      border-top: 2px solid #3e3d32;
+      background: #1a1a16;
+      font-size: 12px;
+      font-family: 'Courier New', monospace;
+    }
+
+    #validation-panel.open { display: flex; }
+
+    #validation-summary {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 4px 12px;
+      font-size: 11px;
+      font-weight: 700;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      border-bottom: 1px solid #3e3d32;
+      flex-shrink: 0;
+    }
+
+    #validation-summary button {
+      background: none;
+      border: none;
+      color: #75715e;
+      font-size: 14px;
+      cursor: pointer;
+      padding: 0 2px;
+    }
+
+    #validation-summary button:hover { color: #f8f8f2; }
+
+    #validation-messages {
+      overflow-y: auto;
+      flex: 1;
+    }
+
+    .val-msg {
+      display: flex;
+      gap: 10px;
+      padding: 3px 12px;
+      cursor: pointer;
+      border-bottom: 1px solid #23231e;
+    }
+
+    .val-msg:hover { background: #272822; }
+    .val-msg.val-error .val-type { color: #f92672; }
+    .val-msg.val-warning .val-type { color: #e6db74; }
+    .val-msg.val-info .val-type { color: #75715e; }
+    .val-line { color: #75715e; flex-shrink: 0; min-width: 60px; }
+    .val-type { flex-shrink: 0; min-width: 50px; }
+    .val-text { color: #f8f8f2; }
+
     #instructions-btn {
       padding: 7px 12px;
       background: transparent;
@@ -287,6 +361,7 @@
       Prettier
     </label>
     <button id="copy-btn" disabled>Copy HTML</button>
+    <button id="validate-btn" disabled>Validate</button>
     <button id="instructions-btn">Instructions</button>
   </div>
 
@@ -294,6 +369,10 @@
     <div id="code-pane">
       <div class="pane-header">Cleaned HTML</div>
       <div id="editor"></div>
+      <div id="validation-panel">
+        <div id="validation-summary"></div>
+        <div id="validation-messages"></div>
+      </div>
     </div>
     <div id="preview-pane">
       <div class="pane-header">Preview</div>
@@ -833,11 +912,15 @@ function infoTableCleanup(t) {
   editor.session.setUseWrapMode(true);
   editor.setOptions({ scrollPastEnd: 0.5 });
 
-  const urlInput       = document.getElementById('url-input');
-  const fetchBtn       = document.getElementById('fetch-btn');
-  const copyBtn        = document.getElementById('copy-btn');
-  const previewFrame   = document.getElementById('preview-frame');
-  const prettierToggle = document.getElementById('prettier-toggle');
+  const urlInput          = document.getElementById('url-input');
+  const fetchBtn          = document.getElementById('fetch-btn');
+  const copyBtn           = document.getElementById('copy-btn');
+  const validateBtn       = document.getElementById('validate-btn');
+  const previewFrame      = document.getElementById('preview-frame');
+  const prettierToggle    = document.getElementById('prettier-toggle');
+  const validationPanel   = document.getElementById('validation-panel');
+  const validationSummary = document.getElementById('validation-summary');
+  const validationMsgs    = document.getElementById('validation-messages');
 
   let currentUrl = '';
 
@@ -854,10 +937,20 @@ function infoTableCleanup(t) {
     return htmlStr.replace(/(<head[^>]*>)/i, `$1\n  ${tag}`);
   }
 
+  function escapeHtml(str) {
+    return str.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');
+  }
+
   editor.session.on('change', () => {
     const content = editor.getValue();
     previewFrame.srcdoc = currentUrl ? injectBase(content, currentUrl) : content;
-    copyBtn.disabled = !content.length;
+    const hasContent = content.length > 0;
+    copyBtn.disabled = !hasContent;
+    validateBtn.disabled = !hasContent;
+    if (!hasContent) {
+      validationPanel.classList.remove('open');
+      editor.session.clearAnnotations();
+    }
   });
 
   fetchBtn.addEventListener('click', async () => {
@@ -900,6 +993,85 @@ function infoTableCleanup(t) {
     } finally {
       fetchBtn.disabled = false;
       fetchBtn.textContent = 'Fetch & Clean';
+    }
+  });
+
+  validateBtn.addEventListener('click', async () => {
+    const html = editor.getValue();
+    if (!html) return;
+
+    validateBtn.disabled = true;
+    validateBtn.textContent = 'Validating…';
+
+    try {
+      const res = await fetch('https://validator.w3.org/nu/?out=json', {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/html; charset=utf-8' },
+        body: html,
+      });
+
+      const data = await res.json();
+      const messages = (data.messages || []).filter(m => m.type !== 'non-document-error');
+
+      const errors   = messages.filter(m => m.type === 'error');
+      const warnings = messages.filter(m => m.subType === 'warning');
+
+      editor.session.setAnnotations(
+        messages
+          .filter(m => m.lastLine)
+          .map(m => ({
+            row:    m.lastLine - 1,
+            column: (m.lastColumn || 1) - 1,
+            text:   m.message,
+            type:   m.type === 'error' ? 'error' : 'warning',
+          }))
+      );
+
+      const summary = errors.length === 0 && warnings.length === 0
+        ? `<span style="color:#a6e22e">✓ Valid — no errors or warnings</span>`
+        : `<span style="display:flex;align-items:center;gap:16px">
+            <span>
+              <span style="color:#f92672;font-weight:700">${errors.length} error${errors.length !== 1 ? 's' : ''}</span>
+              <span style="color:#75715e;font-weight:400;font-size:10px;margin-left:4px">must fix</span>
+            </span>
+            <span>
+              <span style="color:#e6db74;font-weight:700">${warnings.length} warning${warnings.length !== 1 ? 's' : ''}</span>
+              <span style="color:#75715e;font-weight:400;font-size:10px;margin-left:4px">review only</span>
+            </span>
+           </span>`;
+
+      validationSummary.innerHTML = `${summary}<button id="val-close">✕</button>`;
+      document.getElementById('val-close').addEventListener('click', () => {
+        validationPanel.classList.remove('open');
+        editor.session.clearAnnotations();
+      });
+
+      const rank = m => m.type === 'error' ? 0 : m.subType === 'warning' ? 1 : 2;
+      messages.sort((a, b) => rank(a) - rank(b));
+
+      validationMsgs.innerHTML = messages.map(m => {
+        const cls  = m.type === 'error' ? 'val-error' : m.subType === 'warning' ? 'val-warning' : 'val-info';
+        const type = m.type === 'error' ? 'error' : m.subType === 'warning' ? 'warn' : 'info';
+        const line = m.lastLine ? `line ${m.lastLine}` : '—';
+        return `<div class="val-msg ${cls}" data-line="${m.lastLine || 0}">
+          <span class="val-line">${line}</span>
+          <span class="val-type">${type}</span>
+          <span class="val-text">${escapeHtml(m.message)}</span>
+        </div>`;
+      }).join('');
+
+      validationMsgs.querySelectorAll('.val-msg[data-line]').forEach(el => {
+        const line = parseInt(el.dataset.line);
+        if (line) el.addEventListener('click', () => { editor.gotoLine(line, 0, true); editor.focus(); });
+      });
+
+      validationPanel.classList.add('open');
+
+    } catch (err) {
+      alert(`Validation failed: ${err.message}`);
+    } finally {
+      validateBtn.disabled = false;
+      validateBtn.textContent = 'Validate';
     }
   });
 
