@@ -15,8 +15,8 @@
 
     html, body {
       height: 100%;
-      background: #272822;
-      color: #f8f8f2;
+      background: #f8f7f2;
+      color: #272822;
       font-family: system-ui, sans-serif;
     }
 
@@ -32,13 +32,13 @@
       align-items: center;
       gap: 8px;
       padding: 0 14px;
-      background: #1a1a16;
-      border-bottom: 1px solid #3e3d32;
+      background: #eeead8;
+      border-bottom: 1px solid #d5d0bb;
     }
 
     #toolbar label {
       font-size: 13px;
-      color: #75715e;
+      color: #706b55;
       white-space: nowrap;
       font-weight: 600;
       letter-spacing: 0.04em;
@@ -50,9 +50,9 @@
       padding: 7px 10px;
       font-size: 13px;
       border-radius: 4px;
-      border: 1px solid #3e3d32;
-      background: #272822;
-      color: #f8f8f2;
+      border: 1px solid #ccc;
+      background: #fff;
+      color: #272822;
       outline: none;
       font-family: 'Courier New', monospace;
     }
@@ -83,8 +83,8 @@
     #download-btn {
       padding: 7px 12px;
       background: transparent;
-      color: #66d9e8;
-      border: 1px solid #3e3d32;
+      color: #0090a8;
+      border: 1px solid #ccc;
       border-radius: 4px;
       cursor: pointer;
       font-weight: 600;
@@ -93,14 +93,14 @@
       transition: background 0.15s, color 0.15s;
     }
 
-    #download-btn:hover:not(:disabled) { background: #66d9e8; color: #272822; }
+    #download-btn:hover:not(:disabled) { background: #0090a8; color: #fff; }
     #download-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     #validate-btn {
       padding: 7px 12px;
       background: transparent;
-      color: #f92672;
-      border: 1px solid #3e3d32;
+      color: #c8003a;
+      border: 1px solid #ccc;
       border-radius: 4px;
       cursor: pointer;
       font-weight: 600;
@@ -109,7 +109,7 @@
       transition: background 0.15s, color 0.15s;
     }
 
-    #validate-btn:hover:not(:disabled) { background: #f92672; color: #272822; }
+    #validate-btn:hover:not(:disabled) { background: #c8003a; color: #fff; }
     #validate-btn:disabled { opacity: 0.3; cursor: not-allowed; }
 
     #validation-panel {
@@ -175,8 +175,8 @@
       height: 30px;
       padding: 0;
       background: transparent;
-      color: #75715e;
-      border: 1px solid #3e3d32;
+      color: #706b55;
+      border: 1px solid #ccc;
       border-radius: 50%;
       cursor: pointer;
       font-weight: 700;
@@ -185,12 +185,12 @@
       transition: background 0.15s, color 0.15s, border-color 0.15s;
     }
 
-    #instructions-btn:hover { background: #3e3d32; color: #f8f8f2; border-color: #75715e; }
+    #instructions-btn:hover { background: #e0dcc8; color: #272822; border-color: #bbb; }
 
     .toolbar-sep {
       width: 1px;
       height: 24px;
-      background: #3e3d32;
+      background: #ccc;
       flex-shrink: 0;
       margin: 0 4px;
     }
@@ -224,8 +224,8 @@
       align-items: center;
       justify-content: space-between;
       padding: 10px 16px;
-      background: #1a1a16;
-      border-bottom: 1px solid #3e3d32;
+      background: #eeead8;
+      border-bottom: 1px solid #d5d0bb;
       flex-shrink: 0;
     }
 
@@ -234,13 +234,13 @@
       font-weight: 700;
       letter-spacing: 0.06em;
       text-transform: uppercase;
-      color: #e69f00;
+      color: #9e6b00;
     }
 
     #modal-close {
       background: none;
       border: none;
-      color: #75715e;
+      color: #888;
       font-size: 20px;
       cursor: pointer;
       line-height: 1;
@@ -249,7 +249,7 @@
       transition: color 0.15s;
     }
 
-    #modal-close:hover { color: #f8f8f2; }
+    #modal-close:hover { color: #272822; }
 
     #instructions-content {
       flex: 1;
@@ -314,9 +314,9 @@
       font-weight: 700;
       letter-spacing: 0.08em;
       text-transform: uppercase;
-      color: #75715e;
-      background: #1a1a16;
-      border-bottom: 1px solid #3e3d32;
+      color: #706b55;
+      background: #eeead8;
+      border-bottom: 1px solid #d5d0bb;
     }
 
     #code-pane, #preview-pane {
@@ -325,7 +325,7 @@
       overflow: hidden;
     }
 
-    #code-pane { border-right: 2px solid #3e3d32; }
+    #code-pane { border-right: 2px solid #d5d0bb; }
 
     #editor {
       flex: 1;
@@ -350,8 +350,8 @@
     #todo-panel {
       flex: 0 0 auto;
       height: 270px;
-      border-top: 2px solid #3e3d32;
-      background: #1e1e1a;
+      border-top: 2px solid #d5d0bb;
+      background: #f2f0e8;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
@@ -360,22 +360,22 @@
     #todo-list { padding: 8px 10px 12px; display: flex; flex-direction: column; gap: 5px; }
     #todo-list:empty::after {
       content: 'Fetch a page to start the checklist.';
-      color: #75715e; font-size: 12px; padding-top: 4px;
+      color: #999; font-size: 12px; padding-top: 4px;
     }
 
     /* Todo items */
-    .todo-item { border: 1px solid #3e3d32; border-radius: 4px; background: #272822; overflow: hidden; }
+    .todo-item { border: 1px solid #d5d0bb; border-radius: 4px; background: #fff; overflow: hidden; }
     .todo-item.done { opacity: 0.55; }
     .todo-item-header {
       display: flex; align-items: center; gap: 9px;
       padding: 7px 10px; cursor: pointer; user-select: none;
     }
-    .todo-item-header:hover { background: #2e2e28; }
+    .todo-item-header:hover { background: #f5f2e8; }
 
     /* Custom checkbox */
     .todo-cb {
       appearance: none; width: 14px; height: 14px;
-      border: 2px solid #75715e; border-radius: 3px;
+      border: 2px solid #aaa; border-radius: 3px;
       flex-shrink: 0; cursor: pointer; position: relative;
       transition: border-color 0.15s, background 0.15s;
     }
@@ -383,61 +383,61 @@
     .todo-cb:checked::after {
       content: ''; position: absolute;
       left: 1px; top: -1px; width: 7px; height: 9px;
-      border: 2px solid #272822; border-top: none; border-left: none;
+      border: 2px solid #fff; border-top: none; border-left: none;
       transform: rotate(45deg);
     }
 
-    .todo-label { flex: 1; font-size: 11px; font-weight: 600; color: #f8f8f2; letter-spacing: 0.03em; }
-    .todo-item.done .todo-label { text-decoration: line-through; color: #75715e; }
-    .todo-chevron { font-size: 9px; color: #75715e; flex-shrink: 0; transition: transform 0.2s; }
+    .todo-label { flex: 1; font-size: 11px; font-weight: 600; color: #272822; letter-spacing: 0.03em; }
+    .todo-item.done .todo-label { text-decoration: line-through; color: #aaa; }
+    .todo-chevron { font-size: 9px; color: #bbb; flex-shrink: 0; transition: transform 0.2s; }
     .todo-item.expanded .todo-chevron { transform: rotate(90deg); }
 
     /* Detail section */
     .todo-detail {
       display: none; padding: 8px 12px 10px 33px;
-      border-top: 1px solid #3e3d32;
-      font-size: 11px; line-height: 1.5; color: #bbb;
+      border-top: 1px solid #d5d0bb;
+      font-size: 11px; line-height: 1.5; color: #555;
     }
     .todo-item.expanded .todo-detail { display: block; }
     .todo-detail p { margin: 0 0 5px; }
     .todo-detail p:last-child { margin-bottom: 0; }
     .todo-detail code {
       font-family: 'Courier New', monospace; font-size: 10px;
-      background: #1a1a16; border: 1px solid #3e3d32; border-radius: 2px;
-      padding: 1px 3px; color: #a6e22e;
+      background: #eeead8; border: 1px solid #ccc; border-radius: 2px;
+      padding: 1px 3px; color: #4a8800;
     }
     .todo-detail pre.ex {
       margin: 4px 0 5px; padding: 5px 8px;
-      background: #0f0f0c; border: 1px solid #3e3d32; border-radius: 3px;
+      background: #f5f2e8; border: 1px solid #ccc; border-radius: 3px;
       font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.5;
-      overflow-x: auto; white-space: pre; color: #ccc;
+      overflow-x: auto; white-space: pre; color: #444;
     }
-    .todo-detail .ex-label { font-size: 10px; color: #75715e; display: block; margin: 3px 0 1px; }
-    .todo-detail .tg { color: #66d9e8; }
-    .todo-detail .at { color: #a6e22e; }
-    .todo-detail .vl { color: #e6db74; }
-    .todo-detail .cm { color: #75715e; }
+    .todo-detail .ex-label { font-size: 10px; color: #999; display: block; margin: 3px 0 1px; }
+    .todo-detail .tg { color: #0090a8; }
+    .todo-detail .at { color: #4a8800; }
+    .todo-detail .vl { color: #856a00; }
+    .todo-detail .cm { color: #999; }
 
     /* Automated subsection */
     .todo-section-hd {
       font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
-      color: #444; padding: 8px 10px 4px; margin-top: 2px;
-      border-top: 1px solid #2a2a24;
+      color: #bbb; padding: 8px 10px 4px; margin-top: 2px;
+      border-top: 1px solid #e0dcc8;
     }
     .todo-item.auto { opacity: 0.45; }
-    .todo-item.auto .todo-label { font-weight: 400; color: #75715e; }
-    .todo-item.auto .todo-cb { border-color: #444; }
+    .todo-item.auto .todo-label { font-weight: 400; color: #aaa; }
+    .todo-item.auto .todo-cb { border-color: #ccc; }
     .todo-item.auto .todo-cb:checked { background: #75715e; border-color: #75715e; }
     .todo-item.auto.done { opacity: 0.25; }
 
     /* Progress badge */
     .todo-progress-badge {
       font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
-      color: #75715e; padding: 2px 7px;
-      border: 1px solid #3e3d32; border-radius: 10px; display: none;
+      color: #999; padding: 2px 7px;
+      border: 1px solid #ccc; border-radius: 10px; display: none;
     }
     .todo-progress-badge.has-page { display: inline-block; }
-    .todo-progress-badge.all-done { color: #a6e22e; border-color: #a6e22e; }
+    .todo-progress-badge.all-done { color: #4a8800; border-color: #4a8800; }
 
     /* Ace editor search match highlights */
     .ace_highlight-marker {
@@ -1115,26 +1115,6 @@ ${hr}`;
 
   const TODO_STEPS = [
     {
-      id: 'paragraphs',
-      label: 'Paragraphs',
-      detail: `<p>Each element should be on a single line (Ctrl+J in Notepad++).</p>
-<pre class="ex"><span class="tg">&lt;p&gt;</span>Text for illustration purposes.<span class="tg">&lt;/p&gt;</span></pre>
-<span class="ex-label">Not this:</span>
-<pre class="ex"><span class="tg">&lt;p&gt;</span>
-Text for illustration purposes.
-<span class="tg">&lt;/p&gt;</span></pre>`
-    },
-    {
-      id: 'tables-lists',
-      label: 'Tables & Lists',
-      detail: `<p>2-space indentation (W3 standard).</p>
-<pre class="ex"><span class="tg">&lt;table&gt;</span>
-  <span class="tg">&lt;tr&gt;</span>
-    <span class="tg">&lt;td&gt;</span>Example Text<span class="tg">&lt;/td&gt;</span>
-  <span class="tg">&lt;/tr&gt;</span>
-<span class="tg">&lt;/table&gt;</span></pre>`
-    },
-    {
       id: 'guess-links',
       label: 'GUESS Links',
       detail: `<p>Remove <code>#…-GUESS</code> fragments from anchor hrefs in index pages.</p>
@@ -1207,6 +1187,22 @@ Text for illustration purposes.
       detail: `<p>Removed <code>.txt</code> source links, README links, and <code>class="title"</code> from headings.</p>
 <pre class="ex"><span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/v13pp72.txt"</span><span class="tg">&gt;</span>1972<span class="tg">&lt;/a&gt;</span>  →  1972
 <span class="tg">&lt;h3</span> <span class="at">class</span>=<span class="vl">"title"</span><span class="tg">&gt;</span>Title<span class="tg">&lt;/h3&gt;</span>           →  <span class="tg">&lt;h3&gt;</span>Title<span class="tg">&lt;/h3&gt;</span></pre>`
+    },
+    {
+      id: 'auto-paragraphs',
+      label: 'Paragraphs',
+      detail: `<p>Each <code>&lt;p&gt;</code> element collapsed to a single line by the cleanup step.</p>
+<pre class="ex"><span class="tg">&lt;p&gt;</span>Text for illustration purposes.<span class="tg">&lt;/p&gt;</span></pre>`
+    },
+    {
+      id: 'auto-tables',
+      label: 'Tables & Lists',
+      detail: `<p>2-space indentation applied by Prettier.</p>
+<pre class="ex"><span class="tg">&lt;table&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td&gt;</span>Example Text<span class="tg">&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span></pre>`
     },
     {
       id: 'auto-footer',
