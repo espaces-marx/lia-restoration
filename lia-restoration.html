@@ -801,6 +801,7 @@ Text for illustration purposes.
 function cleanupHTML(rawHTML) {
   let t = rawHTML;
 
+  t = entityCleanup(t);
   t = removeSpaces(t);
   t = leninHeader(t);
   t = t.replaceAll(/<!--[^>]*-->/gm, '');
@@ -823,14 +824,25 @@ function cleanupHTML(rawHTML) {
   return t;
 }
 
+function entityCleanup(t) {
+  t = t.replaceAll(`&nbsp;`, ` `);
+  t = t.replaceAll(`&#160;`, ` `);
+  t = t.replaceAll(`&#8212;`, `—`);
+  t = t.replaceAll(`&#8216;`, `'`);
+  t = t.replaceAll(`&#8217;`, `'`);
+  t = t.replaceAll(`&#8220;`, `"`);
+  t = t.replaceAll(`&#8221;`, `"`);
+  t = t.replaceAll(`&eacute;`, `é`);
+  t = t.replaceAll(`&uuml;`, `ü`);
+  return t;
+}
+
 function removeSpaces(t) {
   t = t.replaceAll(`      `, ``);
   t = t.replaceAll(`    `, ``);
   t = t.replaceAll(`  `, ``);
   t = t.replaceAll(`  `, ``);
-  t = t.replaceAll(` &#160;`, ``);
   t = t.replaceAll(`\t`, ``);
-  t = t.replaceAll(`&nbsp;`, ``);
   t = t.replaceAll(`\n\n \n`, ``);
   t = t.replaceAll(`\n\n  \n`, ``);
   t = t.replaceAll(`\n\n   \n`, ``);
@@ -911,7 +923,7 @@ function paragraphCleanup(t) {
 }
 
 function endnoteCleanup(t) {
-  t = t.replaceAll(`\n&#8212;<em>Lenin</em>`, `—<em>Lenin</em>`);
+  t = t.replaceAll(`\n—<em>Lenin</em>`, `—<em>Lenin</em>`);
   t = t.replaceAll(`<h3>Notes</h3>\n\n\n\n\n\n<p class="endnote">`, `<h3>Notes</h3>\n\n<p class="endnote">`);
   t = t.replaceAll(`<h3>Notes</h3>\n\n\n\n\n\n\n\n\n\n<p class="endnote">`, `<h3>Notes</h3>\n\n<p class="endnote">`);
   t = t.replaceAll(`</p>\n\n\n\n\n\n<p class="endnote">`, `</p>\n\n<p class="endnote">`);
