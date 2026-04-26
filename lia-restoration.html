@@ -1,3 +1,4 @@
+<!-- Auto-synced from https://github.com/espaces-marx/lia-restoration — do not edit directly in espaces-marx.github.io -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -1058,7 +1059,7 @@ function infoTableCleanup(t) {
     const blob = new Blob([editor.getValue()], { type: 'text/html' });
     const a = Object.assign(document.createElement('a'), {
       href: URL.createObjectURL(blob),
-      download: 'cleaned.html',
+      download: currentUrl ? currentUrl.split('/').pop() || 'cleaned.html' : 'cleaned.html',
     });
     a.click();
     URL.revokeObjectURL(a.href);
