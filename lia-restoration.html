@@ -251,12 +251,56 @@
 
     #modal-close:hover { color: #f8f8f2; }
 
-    #instructions-frame {
+    #instructions-content {
       flex: 1;
-      width: 100%;
-      border: none;
+      overflow-y: auto;
       background: #fff;
+      color: #000;
+      padding: 2em 3em;
+      font-family: Georgia, 'Times New Roman', serif;
+      font-size: 15px;
+      line-height: 1.6;
     }
+
+    #instructions-content h1 {
+      font-size: 1.6em;
+      text-align: center;
+      margin-bottom: 0.5em;
+    }
+
+    #instructions-content h2 {
+      font-size: 1.1em;
+      text-align: center;
+      font-weight: normal;
+      margin: 0.8em 0;
+    }
+
+    #instructions-content p { margin: 0.6em 0; }
+
+    #instructions-content ul, #instructions-content ol {
+      margin: 0.5em 0 0.5em 2em;
+    }
+
+    #instructions-content hr { border: none; border-top: 1px solid #999; margin: 1em 0; }
+
+    #instructions-content pre {
+      font-family: 'Courier New', monospace;
+      font-size: 12px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      margin: 0;
+    }
+
+    #instructions-content table { border-collapse: collapse; margin: 0.5em 0; max-width: 100%; }
+    #instructions-content table.white td { border: 1px solid #ccc; padding: 8px 12px; background: #f9f9f9; }
+    #instructions-content table.border td { border: 1px solid #888; padding: 6px 12px; }
+    #instructions-content td { vertical-align: top; }
+
+    #instructions-content b { font-weight: bold; }
+    #instructions-content em { font-style: italic; }
+    #instructions-content .skip { display: none; }
+    #instructions-content .info { font-weight: bold; }
+    #instructions-content .infobloc_copyleft { font-style: italic; }
 
     #panes {
       display: grid;
@@ -338,11 +382,313 @@
       <span>Cleanup Instructions</span>
       <button id="modal-close" title="Close">&#x2715;</button>
     </div>
-    <iframe
-      id="instructions-frame"
-      src="https://www.marxists.org/archive/lenin/works/todo.htm"
-      title="LIA cleanup instructions"
-    ></iframe>
+    <div id="instructions-content">
+
+<h1>LIA To Do List</h1>
+
+<hr>
+
+<h2>
+Questions? Comments?<br>
+Want to help out?<br>
+Contact the Director of the LIA.
+</h2>
+
+<p>Currently almost the entire Lenin Archive needs to repaired and cleaned up due to extremely poor HTML layout and mouseover code. In order to do this we've prepared this todo list, a list of all works that have yet to be cleaned, wrote a script to automate some of the cleanup process and have cleaned up Volume One of the Collected Works to be used as a reference so that volunteers can have guide on how to help with the cleanup effort.</p>
+
+<p><b>To-Do Index</b></p>
+
+<ul style="margin-left: 8%">
+  <li><a href="#setup">Setup</a></li>
+  <li><a href="#script">Cleanup Script</a></li>
+  <li><a href="#paragraphs">Paragraphs</a></li>
+  <li><a href="#table-list-cleanup">Table and List Cleanup</a></li>
+  <li><a href="#lenin-header">V. I. Lenin Header</a></li>
+  <li><a href="#footer-table">Footer Table</a></li>
+  <li><a href="#guess-links">GUESS Links</a></li>
+  <li><a href="#placeholder-footnote">Placeholder Footnotes</a></li>
+  <li><a href="#html-conversion">HTML5 Conversion (partially automated)</a></li>
+  <li><a href="#mouseover">Mouseover Code (automated)</a></li>
+  <li><a href="#anchor-tags">Anchor &lt;a&gt; tags (automated)</a></li>
+  <li><a href="#comments">Comments (automated)</a></li>
+  <li><a href="#footnotes">Footnotes (automated)</a></li>
+  <li><a href="#entities">Entities (automated)</a></li>
+  <li><a href="#txt">.txt Links (automated)</a></li>
+  <li><a href="#readme">README Links (automated)</a></li>
+  <li><a href="#class-title">class="title" Attributes (automated)</a></li>
+  <li><a href="#finished">When You're Finished</a></li>
+</ul>
+
+<p id="setup">Things you'll need to setup for cleanup:</p>
+
+<ul style="margin-left: 8%">
+  <li>A text editor (i.e. Notepad++)</li>
+  <li>Bookmark the <a href="https://validator.w3.org/nu/#file" target="_blank">Nu HTML Checker</a></li>
+</ul>
+
+<p id="script"><b>Cleanup Script</b></p>
+
+<p>Enter the URL of the page in the tool above and click <b>Fetch &amp; Clean</b>. This will fetch the HTML and run the cleanup script automatically. The cleaned HTML appears in the left pane and renders in the right pane. Use <b>Copy HTML</b> to copy it to your clipboard.</p>
+
+<hr>
+
+<p id="paragraphs"><b>Paragraphs</b></p>
+
+<p>Paragraphs should all be one line (use Ctrl + J on Notepad++). This also goes for any other element in general but the problem is most prevalent with paragraphs.</p>
+
+<p>Like this:</p>
+
+<table class="white">
+  <tr>
+    <td><pre><span style="color:blue">&lt;p&gt;</span>Text for illustration purposes. Text for illustration purposes.<span style="color:blue">&lt;/p&gt;</span></pre></td>
+  </tr>
+</table>
+
+<p>Instead of this:</p>
+
+<table class="white">
+  <tr>
+    <td><pre><span style="color:blue">&lt;p&gt;</span>
+Text for illustration purposes.
+Text for illustration purposes.
+<span style="color:blue">&lt;/p&gt;</span></pre></td>
+  </tr>
+</table>
+
+<p id="table-list-cleanup"><b>Table and List Cleanup</b></p>
+
+<p>Tables and Lists need to be cleaned up to be more readable. We'll be following the W3 standard of 2 spaces for indentation for this.</p>
+
+<table class="white">
+  <tr><td><pre><span style="color:blue">&lt;table&gt;</span>
+  <span style="color:blue">&lt;tr&gt;</span>
+    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
+  <span style="color:blue">&lt;/tr&gt;</span>
+<span style="color:blue">&lt;/table&gt;</span></pre></td></tr>
+</table>
+
+<p id="lenin-header"><b>V.I Lenin Header</b></p>
+
+<p>The V.I. Lenin header needs to have its the links to the next work/chapter removed and be changed from "V.I Lenin" to "Vladimir Ilyich Lenin"</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr>
+    <td>From this:</td>
+    <td><pre><span style="color:blue">&lt;h2&gt;</span>
+  <span style="color:blue">&lt;a</span> <span style="color:red">title</span>=<span style="color:purple">"..."</span> <span style="color:red">href</span>=<span style="color:purple">"..."</span><span style="color:blue">&gt;</span>V. I.<span style="color:blue">&lt;/a&gt;</span>
+  <span style="color:blue">&lt;a</span> <span style="color:red">title</span>=<span style="color:purple">"..."</span> <span style="color:red">href</span>=<span style="color:purple">"..."</span><span style="color:blue">&gt;</span>Lenin<span style="color:blue">&lt;/a&gt;&lt;/h2&gt;</span></pre></td>
+  </tr>
+  <tr>
+    <td>To this:</td>
+    <td><pre><span style="color:blue">&lt;h2&gt;</span>Vladimir Ilyich Lenin<span style="color:blue">&lt;/h2&gt;</span></pre></td>
+  </tr>
+</table>
+
+<p id="footer-table"><b>Footer Tables</b></p>
+
+<p>Replace footer tables with the following format. If a work is not part of a multi-chapter work then remove the first table before the <span style="color:blue">&lt;hr&gt;</span> tag.</p>
+
+<table class="white">
+  <tr><td><pre><span style="color:blue">&lt;table</span> <span style="color:red">class</span>=<span style="color:purple">"footer"</span><span style="color:blue">&gt;</span>
+  <span style="color:blue">&lt;tr&gt;</span>
+    <span style="color:blue">&lt;td</span> <span style="color:red">class</span>=<span style="color:purple">"footer-backward"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"template.htm"</span><span style="color:blue">&gt;</span>Previous Chapter<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;</span>|<span style="color:blue">&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td</span> <span style="color:red">class</span>=<span style="color:purple">"footer-forward"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"template.htm"</span><span style="color:blue">&gt;</span>Next Chapter<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+  <span style="color:blue">&lt;/tr&gt;</span>
+  <span style="color:blue">&lt;tr&gt;</span>
+    <span style="color:blue">&lt;td</span> <span style="color:red">colspan</span>=<span style="color:purple">"3"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"template.htm"</span><span style="color:blue">&gt;</span>Document Index<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+  <span style="color:blue">&lt;/tr&gt;</span>
+<span style="color:blue">&lt;/table&gt;</span>
+
+<span style="color:blue">&lt;hr</span> <span style="color:red">class</span>=<span style="color:purple">"end"</span><span style="color:blue">&gt;</span>
+
+<span style="color:blue">&lt;table</span> <span style="color:red">class</span>=<span style="color:purple">"footer"</span><span style="color:blue">&gt;</span>
+  <span style="color:blue">&lt;tr&gt;</span>
+    <span style="color:blue">&lt;td</span> <span style="color:red">class</span>=<span style="color:purple">"footer-backward"</span> <span style="color:red">colspan</span>=<span style="color:purple">"3"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"template.htm"</span><span style="color:blue">&gt;</span>&amp;lt; Backwards<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td</span> <span style="color:red">class</span>=<span style="color:purple">"footer-forward"</span> <span style="color:red">colspan</span>=<span style="color:purple">"3"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"template.htm"</span><span style="color:blue">&gt;</span>Forwards &amp;gt;<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+  <span style="color:blue">&lt;/tr&gt;</span>
+  <span style="color:blue">&lt;tr&gt;</span>
+    <span style="color:blue">&lt;td&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"../../index.htm"</span><span style="color:blue">&gt;</span>Works Index<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;</span>|<span style="color:blue">&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"../../cw/template.htm"</span><span style="color:blue">&gt;</span>Current Volume<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;</span>|<span style="color:blue">&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"../../cw/index.htm"</span><span style="color:blue">&gt;</span>Collected Works<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;</span>|<span style="color:blue">&lt;/td&gt;</span>
+    <span style="color:blue">&lt;td&gt;&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"../../../index.htm"</span><span style="color:blue">&gt;</span>L.I.A. Index<span style="color:blue">&lt;/a&gt;&lt;/td&gt;</span>
+  <span style="color:blue">&lt;/tr&gt;</span>
+<span style="color:blue">&lt;/table&gt;</span></pre></td></tr>
+</table>
+
+<p id="guess-links"><b>GUESS Links</b></p>
+
+<p>The GUESS portion of links in indexes need to be removed.</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr>
+    <td>From this:</td>
+    <td><pre><span style="color:blue">&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"i8i.htm#v02zz99h-135-GUESS"</span><span style="color:blue">&gt;</span>The Economic Theories...<span style="color:blue">&lt;/a&gt;</span></pre></td>
+  </tr>
+  <tr>
+    <td>To this:</td>
+    <td><pre><span style="color:blue">&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"i8i.htm"</span><span style="color:blue">&gt;</span>The Economic Theories...<span style="color:blue">&lt;/a&gt;</span></pre></td>
+  </tr>
+</table>
+
+<p id="placeholder-footnote"><b>PLACEHOLDER Footnotes</b></p>
+
+<p>You'll occasionally find footnotes that only read as [PLACEHOLDER FOOTNOTE]. These need to be filled in using the <span style="color:blue">&lt;a&gt;</span> tag's <span style="color:red">id</span> attribute.</p>
+
+<table class="white">
+  <tr><td>
+    <pre><span style="color:red">id</span>=<span style="color:purple">"#bkV01P001F01"</span>  — V01 = Volume, P001 = page, F01 = footnote number</pre>
+    <pre><span style="color:red">id</span>=<span style="color:purple">"#bkV01E001"</span>    — V01 = Volume, E001 = endnote number</pre>
+  </td></tr>
+</table>
+
+<hr>
+
+<p style="text-align:center"><b>Automated Sections</b></p>
+
+<p>This section contains all the cleanup that is <em>usually</em> done by the script. Included in case they were missed.</p>
+
+<p id="html-conversion"><b>HTML5 Conversion (partially automated)</b></p>
+
+<p>Convert the DOCTYPE and html tag:</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr>
+    <td>From:</td>
+    <td><pre>&lt;!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "..."&gt;
+&lt;html xmlns="http://www.w3.org/1999/xhtml"&gt;</pre></td>
+  </tr>
+  <tr>
+    <td>To:</td>
+    <td><pre>&lt;!DOCTYPE html&gt;
+&lt;html lang="en"&gt;</pre></td>
+  </tr>
+</table>
+
+<p>Self-closing tags no longer need a / to close themselves.</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr><td>From:</td><td><pre><span style="color:blue">&lt;br /&gt; &lt;hr /&gt; &lt;hr</span> <span style="color:red">class</span>=<span style="color:purple">"section"</span> <span style="color:blue">/&gt;</span></pre></td></tr>
+  <tr><td>To:</td><td><pre><span style="color:blue">&lt;br&gt; &lt;hr&gt; &lt;hr</span> <span style="color:red">class</span>=<span style="color:purple">"section"</span><span style="color:blue">&gt;</span></pre></td></tr>
+</table>
+
+<p>The <span style="color:red">name</span> attribute is obsolete — remove it from anchor tags, keeping only <span style="color:red">id</span>.</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr><td>From:</td><td><pre><span style="color:blue">&lt;a</span> <span style="color:red">name</span>=<span style="color:purple">"ft"</span> <span style="color:red">id</span>=<span style="color:purple">"ft"</span><span style="color:blue">&gt;</span></pre></td></tr>
+  <tr><td>To:</td><td><pre><span style="color:blue">&lt;a</span> <span style="color:red">id</span>=<span style="color:purple">"ft"</span><span style="color:blue">&gt;</span></pre></td></tr>
+</table>
+
+<p id="mouseover"><b>Mouseover Code (automated)</b></p>
+
+<p>Remove <span style="color:blue">&lt;a&gt;</span> tags with onmouseover/onmouseout attributes:</p>
+
+<table class="white">
+  <tr><td><pre><span style="color:blue">&lt;a</span> <span style="color:red">onmouseover</span>=<span style="color:purple">"window.status='...'"</span> <span style="color:red">onmouseout</span>=<span style="color:purple">"window.status=''"</span><span style="color:blue">&gt;</span>This<span style="color:blue">&lt;/a&gt;</span></pre></td></tr>
+</table>
+
+<p id="anchor-tags"><b>Anchor &lt;a&gt; Tags (automated)</b></p>
+
+<p>Remove self-closing anchor tags that look like this:</p>
+
+<table class="white">
+  <tr><td>
+    <pre><span style="color:blue">&lt;a</span> <span style="color:red">name</span>=<span style="color:purple">'v04pp64h:14'</span> <span style="color:blue">/&gt;</span></pre>
+    <pre><span style="color:blue">&lt;a</span> <span style="color:red">name</span>=<span style="color:purple">'v04pp64h:14'</span><span style="color:blue">&gt;</span></pre>
+  </td></tr>
+</table>
+
+<p id="comments"><b>Comments (automated)</b></p>
+
+<p>Remove comments like the following:</p>
+
+<table class="white">
+  <tr><td>
+    <pre><span style="color:green">&lt;!-- Emacs-File-stamp: "~/Lia/archive/..." --&gt;</span></pre>
+    <pre><span style="color:green">&lt;!-- t2h-body --&gt;</span></pre>
+    <pre><span style="color:green">&lt;!-- vol=04 pg=013 src=v04pp64h type= --&gt;</span></pre>
+  </td></tr>
+</table>
+
+<p id="footnotes"><b>Footnotes (automated)</b></p>
+
+<p>Simplify footnote markup: change <span style="color:red">class</span>=<span style="color:purple">"ednote"</span>/<span style="color:purple">"anote"</span> to <span style="color:purple">"endnote"</span>, move the class to the <span style="color:blue">&lt;sup&gt;</span> element, and remove the obsolete <span style="color:red">name</span> attribute.</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr>
+    <td>From:</td>
+    <td><pre><span style="color:blue">&lt;sup&gt;&lt;a</span> <span style="color:red">class</span>=<span style="color:purple">"anote"</span> <span style="color:red">id</span>=<span style="color:purple">"bkV01E001"</span> <span style="color:red">name</span>=<span style="color:purple">"bkV01E001"</span> <span style="color:red">href</span>=<span style="color:purple">"#fwV01E001"</span><span style="color:blue">&gt;</span>[1]<span style="color:blue">&lt;/a&gt;&lt;/sup&gt;</span></pre></td>
+  </tr>
+  <tr>
+    <td>To:</td>
+    <td><pre><span style="color:blue">&lt;sup</span> <span style="color:red">class</span>=<span style="color:purple">"endnote"</span><span style="color:blue">&gt;&lt;a</span> <span style="color:red">id</span>=<span style="color:purple">"bkV01E001"</span> <span style="color:red">href</span>=<span style="color:purple">"#fwV01E001"</span><span style="color:blue">&gt;</span>[1]<span style="color:blue">&lt;/a&gt;&lt;/sup&gt;</span></pre></td>
+  </tr>
+</table>
+
+<p id="entities"><b>Entities (automated)</b></p>
+
+<p>Replace entities with their actual counterpart:</p>
+
+<table class="white">
+  <tr><td>
+    <ul>
+      <li>&amp;nbsp; → [blank space]</li>
+      <li>&amp;#160; → [blank space]</li>
+      <li>&amp;#8212; → —</li>
+      <li>&amp;#8216; → '</li>
+      <li>&amp;#8217; → '</li>
+      <li>&amp;#8220; → "</li>
+      <li>&amp;#8221; → "</li>
+      <li>&amp;eacute; → é</li>
+      <li>&amp;uuml; → ü</li>
+    </ul>
+  </td></tr>
+</table>
+
+<p id="txt"><b>.txt Links (automated)</b></p>
+
+<p>In the infoblock, remove .txt links found in the Source info (usually around the year).</p>
+
+<table class="white">
+  <tr><td><pre><span style="color:blue">&lt;a</span> <span style="color:red">href</span>=<span style="color:purple">"../../cw/v13pp72.txt"</span><span style="color:blue">&gt;</span>1972<span style="color:blue">&lt;/a&gt;</span>  →  1972</pre></td></tr>
+</table>
+
+<p id="readme"><b>README Links (automated)</b></p>
+
+<p>Remove "• README" links in the infoblock that go to a dead end.</p>
+
+<p id="class-title"><b>class="title" Attributes (automated)</b></p>
+
+<p>Remove <span style="color:red">class</span>=<span style="color:purple">"title"</span> from heading elements — they do nothing.</p>
+
+<table class="border" style="margin-left: 10%">
+  <tr>
+    <td>From:</td>
+    <td><pre><span style="color:blue">&lt;h3</span> <span style="color:red">class</span>=<span style="color:purple">"title"</span><span style="color:blue">&gt;</span>Title text<span style="color:blue">&lt;/h3&gt;</span></pre></td>
+  </tr>
+  <tr>
+    <td>To:</td>
+    <td><pre><span style="color:blue">&lt;h3&gt;</span>Title text<span style="color:blue">&lt;/h3&gt;</span></pre></td>
+  </tr>
+</table>
+
+<hr>
+
+<p id="finished" style="text-align:center"><b>When You're Finished</b></p>
+
+<p>Run your HTML through the <a href="https://validator.w3.org/nu/#file" target="_blank">Nu HTML Checker</a> for any mistakes and HTML5 conversions that were missed.</p>
+
+<p>If you so wish, add the following to the info header of the work with you credited:<br>
+<span class="info">Refactored by:</span> [Your Name/Handle]
+</p>
+
+<p>Send an email with the cleaned up HTML file and a link to the work to the current admin of the LIA and inform them of your work.</p>
+
+    </div>
   </div>
 </div>
 

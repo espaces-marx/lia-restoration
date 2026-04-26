@@ -1,6 +1,6 @@
 # LIA Restoration Tool
 
-A browser-based tool to help volunteers clean up HTML pages in the [Lenin Internet Archive (LIA)](https://www.marxists.org/archive/lenin/works/todo.htm) on marxists.org.
+A browser-based tool to help volunteers clean up HTML pages in the Lenin Internet Archive (LIA) on marxists.org.
 
 ## Background
 
