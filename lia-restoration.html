@@ -438,6 +438,16 @@
     }
     .todo-progress-badge.has-page { display: inline-block; }
     .todo-progress-badge.all-done { color: #a6e22e; border-color: #a6e22e; }
+
+    /* Ace editor search match highlights */
+    .ace_highlight-marker {
+      background: rgba(253, 198, 0, 0.45) !important;
+      border: 1px solid rgba(253, 198, 0, 0.9) !important;
+    }
+    .ace_selected-word {
+      background: rgba(253, 198, 0, 0.7) !important;
+      border: 1px solid #fdc600 !important;
+    }
   </style>
 </head>
 <body>
@@ -1014,7 +1024,7 @@ function infoTableCleanup(t) {
 
   const urlInput          = document.getElementById('url-input');
   const fetchBtn          = document.getElementById('fetch-btn');
-  const downloadBtn           = document.getElementById('download-btn');
+  const downloadBtn       = document.getElementById('download-btn');
   const validateBtn       = document.getElementById('validate-btn');
   const previewFrame      = document.getElementById('preview-frame');
   const validationPanel   = document.getElementById('validation-panel');
