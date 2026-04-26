@@ -339,6 +339,105 @@
       border: none;
       background: white;
     }
+
+    /* Preview pane header with badge */
+    .pane-header-split {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 5px 12px;
+    }
+
+    /* Todo panel — fixed-height split below the iframe */
+    #todo-panel {
+      flex: 0 0 auto;
+      height: 270px;
+      border-top: 2px solid #3e3d32;
+      background: #1e1e1a;
+      overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+    }
+
+    #todo-list { padding: 8px 10px 12px; display: flex; flex-direction: column; gap: 5px; }
+    #todo-list:empty::after {
+      content: 'Fetch a page to start the checklist.';
+      color: #75715e; font-size: 12px; padding-top: 4px;
+    }
+
+    /* Todo items */
+    .todo-item { border: 1px solid #3e3d32; border-radius: 4px; background: #272822; overflow: hidden; }
+    .todo-item.done { opacity: 0.55; }
+    .todo-item-header {
+      display: flex; align-items: center; gap: 9px;
+      padding: 7px 10px; cursor: pointer; user-select: none;
+    }
+    .todo-item-header:hover { background: #2e2e28; }
+
+    /* Custom checkbox */
+    .todo-cb {
+      appearance: none; width: 14px; height: 14px;
+      border: 2px solid #75715e; border-radius: 3px;
+      flex-shrink: 0; cursor: pointer; position: relative;
+      transition: border-color 0.15s, background 0.15s;
+    }
+    .todo-cb:checked { background: #a6e22e; border-color: #a6e22e; }
+    .todo-cb:checked::after {
+      content: ''; position: absolute;
+      left: 1px; top: -1px; width: 7px; height: 9px;
+      border: 2px solid #272822; border-top: none; border-left: none;
+      transform: rotate(45deg);
+    }
+
+    .todo-label { flex: 1; font-size: 11px; font-weight: 600; color: #f8f8f2; letter-spacing: 0.03em; }
+    .todo-item.done .todo-label { text-decoration: line-through; color: #75715e; }
+    .todo-chevron { font-size: 9px; color: #75715e; flex-shrink: 0; transition: transform 0.2s; }
+    .todo-item.expanded .todo-chevron { transform: rotate(90deg); }
+
+    /* Detail section */
+    .todo-detail {
+      display: none; padding: 8px 12px 10px 33px;
+      border-top: 1px solid #3e3d32;
+      font-size: 11px; line-height: 1.5; color: #bbb;
+    }
+    .todo-item.expanded .todo-detail { display: block; }
+    .todo-detail p { margin: 0 0 5px; }
+    .todo-detail p:last-child { margin-bottom: 0; }
+    .todo-detail code {
+      font-family: 'Courier New', monospace; font-size: 10px;
+      background: #1a1a16; border: 1px solid #3e3d32; border-radius: 2px;
+      padding: 1px 3px; color: #a6e22e;
+    }
+    .todo-detail pre.ex {
+      margin: 4px 0 5px; padding: 5px 8px;
+      background: #0f0f0c; border: 1px solid #3e3d32; border-radius: 3px;
+      font-family: 'Courier New', monospace; font-size: 10px; line-height: 1.5;
+      overflow-x: auto; white-space: pre; color: #ccc;
+    }
+    .todo-detail .ex-label { font-size: 10px; color: #75715e; display: block; margin: 3px 0 1px; }
+    .todo-detail .tg { color: #66d9e8; }
+    .todo-detail .at { color: #a6e22e; }
+    .todo-detail .vl { color: #e6db74; }
+    .todo-detail .cm { color: #75715e; }
+
+    /* Automated subsection */
+    .todo-section-hd {
+      font-size: 9px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+      color: #444; padding: 8px 10px 4px; margin-top: 2px;
+      border-top: 1px solid #2a2a24;
+    }
+    .todo-item.auto { opacity: 0.45; }
+    .todo-item.auto .todo-label { font-weight: 400; color: #75715e; }
+    .todo-item.auto .todo-cb { border-color: #444; }
+    .todo-item.auto .todo-cb:checked { background: #75715e; border-color: #75715e; }
+    .todo-item.auto.done { opacity: 0.25; }
+
+    /* Progress badge */
+    .todo-progress-badge {
+      font-size: 10px; font-weight: 700; letter-spacing: 0.04em;
+      color: #75715e; padding: 2px 7px;
+      border: 1px solid #3e3d32; border-radius: 10px; display: none;
+    }
+    .todo-progress-badge.has-page { display: inline-block; }
+    .todo-progress-badge.all-done { color: #a6e22e; border-color: #a6e22e; }
   </style>
 </head>
 <body>
@@ -369,8 +468,14 @@
       </div>
     </div>
     <div id="preview-pane">
-      <div class="pane-header">Preview</div>
+      <div class="pane-header pane-header-split">
+        Preview
+        <span id="todo-progress" class="todo-progress-badge"></span>
+      </div>
       <iframe id="preview-frame" title="Preview"></iframe>
+      <div id="todo-panel" aria-label="Restoration checklist">
+        <div id="todo-list"></div>
+      </div>
     </div>
   </div>
 </div>
@@ -903,8 +1008,213 @@ function infoTableCleanup(t) {
   const validationPanel   = document.getElementById('validation-panel');
   const validationSummary = document.getElementById('validation-summary');
   const validationMsgs    = document.getElementById('validation-messages');
+  const todoList     = document.getElementById('todo-list');
+  const todoProgress = document.getElementById('todo-progress');
 
   let currentUrl = '';
+
+  const TODO_STEPS = [
+    {
+      id: 'paragraphs',
+      label: 'Paragraphs',
+      detail: `<p>Each element should be on a single line (Ctrl+J in Notepad++).</p>
+<pre class="ex"><span class="tg">&lt;p&gt;</span>Text for illustration purposes.<span class="tg">&lt;/p&gt;</span></pre>
+<span class="ex-label">Not this:</span>
+<pre class="ex"><span class="tg">&lt;p&gt;</span>
+Text for illustration purposes.
+<span class="tg">&lt;/p&gt;</span></pre>`
+    },
+    {
+      id: 'tables-lists',
+      label: 'Tables & Lists',
+      detail: `<p>2-space indentation (W3 standard).</p>
+<pre class="ex"><span class="tg">&lt;table&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td&gt;</span>Example Text<span class="tg">&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span></pre>`
+    },
+    {
+      id: 'footer-tables',
+      label: 'Footer Tables',
+      detail: `<p>Replace footer tables with the standard template. Omit the first table for single-chapter works.</p>
+<pre class="ex"><span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Previous Chapter<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Next Chapter<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+  <span class="tg">&lt;tr&gt;&lt;td</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Document Index<span class="tg">&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span>
+<span class="tg">&lt;hr</span> <span class="at">class</span>=<span class="vl">"end"</span><span class="tg">&gt;</span>
+<span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>&amp;lt; Backwards<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Forwards &amp;gt;<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../index.htm"</span><span class="tg">&gt;</span>Works Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/template.htm"</span><span class="tg">&gt;</span>Current Volume<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/index.htm"</span><span class="tg">&gt;</span>Collected Works<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../../index.htm"</span><span class="tg">&gt;</span>L.I.A. Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span></pre>`
+    },
+    {
+      id: 'guess-links',
+      label: 'GUESS Links',
+      detail: `<p>Remove <code>#…-GUESS</code> fragments from anchor hrefs in index pages.</p>
+<pre class="ex"><span class="cm">From:</span> <span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"i8i.htm#v02zz99h-135-GUESS"</span><span class="tg">&gt;</span>The Economic Theories...<span class="tg">&lt;/a&gt;</span>
+<span class="cm">To:</span>   <span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"i8i.htm"</span><span class="tg">&gt;</span>The Economic Theories...<span class="tg">&lt;/a&gt;</span></pre>`
+    },
+    {
+      id: 'placeholder-footnotes',
+      label: 'Placeholder Footnotes',
+      detail: `<p>Find <code>[PLACEHOLDER FOOTNOTE]</code> and fill using the anchor's <code>id</code>.</p>
+<pre class="ex"><span class="at">id</span>=<span class="vl">"#bkV01P001F01"</span>  <span class="cm">— V01=Volume, P001=page, F01=footnote</span>
+<span class="at">id</span>=<span class="vl">"#bkV01E001"</span>    <span class="cm">— V01=Volume, E001=endnote</span></pre>`
+    },
+    {
+      id: 'validate-submit',
+      label: 'Validate & Submit',
+      detail: `<p>Click <strong>Validate</strong>. Fix all errors (red), review warnings (yellow).</p>
+<p>Optionally add to the info header: <code>Refactored by: [Your Name]</code></p>
+<p>Click <strong>Download HTML</strong> and email the file + URL to the LIA administrator.</p>`
+    }
+  ];
+
+  const AUTO_STEPS = [
+    {
+      id: 'auto-header',
+      label: 'Lenin Header',
+      detail: `<p>Links removed, name changed to "Vladimir Ilyich Lenin".</p>
+<pre class="ex"><span class="cm">From:</span> <span class="tg">&lt;h2&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>V. I.<span class="tg">&lt;/a&gt;</span> <span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Lenin<span class="tg">&lt;/a&gt;&lt;/h2&gt;</span>
+<span class="cm">To:</span>   <span class="tg">&lt;h2&gt;</span>Vladimir Ilyich Lenin<span class="tg">&lt;/h2&gt;</span></pre>`
+    },
+    {
+      id: 'auto-html5',
+      label: 'HTML5 Conversion',
+      detail: `<p>DOCTYPE, self-closing tags, <code>name</code>→<code>id</code>.</p>
+<pre class="ex"><span class="cm">From:</span> &lt;!DOCTYPE html PUBLIC "..."&gt;   <span class="tg">&lt;br /&gt;</span>   <span class="tg">&lt;a</span> <span class="at">name</span>=<span class="vl">"ft"</span> <span class="at">id</span>=<span class="vl">"ft"</span><span class="tg">&gt;</span>
+<span class="cm">To:</span>   &lt;!DOCTYPE html&gt;               <span class="tg">&lt;br&gt;</span>     <span class="tg">&lt;a</span> <span class="at">id</span>=<span class="vl">"ft"</span><span class="tg">&gt;</span></pre>`
+    },
+    {
+      id: 'auto-mouseover',
+      label: 'Mouseover & Empty Anchors',
+      detail: `<p>Removed <code>onmouseover</code>/<code>onmouseout</code> and empty self-closing anchors.</p>
+<pre class="ex"><span class="tg">&lt;a</span> <span class="at">onmouseover</span>=<span class="vl">"window.status='...'"</span> <span class="at">onmouseout</span>=<span class="vl">"window.status=''"</span><span class="tg">&gt;</span>This<span class="tg">&lt;/a&gt;</span>
+<span class="tg">&lt;a</span> <span class="at">name</span>=<span class="vl">'v04pp64h:14'</span> <span class="tg">/&gt;</span></pre>`
+    },
+    {
+      id: 'auto-comments',
+      label: 'Comments',
+      detail: `<p>Removed Emacs file stamps and processing comments.</p>
+<pre class="ex"><span class="cm">&lt;!-- Emacs-File-stamp: "~/Lia/archive/..." --&gt;
+&lt;!-- t2h-body --&gt;
+&lt;!-- vol=04 pg=013 src=v04pp64h type= --&gt;</span></pre>`
+    },
+    {
+      id: 'auto-footnotes',
+      label: 'Footnotes',
+      detail: `<p>Class moved to <code>&lt;sup&gt;</code>, <code>name</code> removed, <code>ednote</code>/<code>anote</code> → <code>endnote</code>.</p>
+<pre class="ex"><span class="cm">From:</span> <span class="tg">&lt;sup&gt;&lt;a</span> <span class="at">class</span>=<span class="vl">"anote"</span> <span class="at">id</span>=<span class="vl">"bkV01E001"</span> <span class="at">name</span>=<span class="vl">"bkV01E001"</span><span class="tg">&gt;</span>[1]<span class="tg">&lt;/a&gt;&lt;/sup&gt;</span>
+<span class="cm">To:</span>   <span class="tg">&lt;sup</span> <span class="at">class</span>=<span class="vl">"endnote"</span><span class="tg">&gt;&lt;a</span> <span class="at">id</span>=<span class="vl">"bkV01E001"</span><span class="tg">&gt;</span>[1]<span class="tg">&lt;/a&gt;&lt;/sup&gt;</span></pre>`
+    },
+    {
+      id: 'auto-entities',
+      label: 'Entities & Characters',
+      detail: `<p>Replaced HTML entities with actual characters.</p>
+<pre class="ex">&amp;nbsp; &amp;#160; → [space]   &amp;#8212; → —
+&amp;eacute; → é   &amp;uuml; → ü   &amp;#8216; → '</pre>`
+    },
+    {
+      id: 'auto-info',
+      label: 'Info Block Cleanup',
+      detail: `<p>Removed <code>.txt</code> source links, README links, and <code>class="title"</code> from headings.</p>
+<pre class="ex"><span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/v13pp72.txt"</span><span class="tg">&gt;</span>1972<span class="tg">&lt;/a&gt;</span>  →  1972
+<span class="tg">&lt;h3</span> <span class="at">class</span>=<span class="vl">"title"</span><span class="tg">&gt;</span>Title<span class="tg">&lt;/h3&gt;</span>           →  <span class="tg">&lt;h3&gt;</span>Title<span class="tg">&lt;/h3&gt;</span></pre>`
+    }
+  ];
+
+  const LS_PREFIX = 'lia-todo:';
+
+  const todoState = {
+    url: null,
+    checks: {},
+    expanded: {},
+
+    load(url) {
+      this.url = url;
+      this.expanded = {};
+      const raw = localStorage.getItem(LS_PREFIX + url);
+      try { this.checks = raw ? JSON.parse(raw) : {}; } catch { this.checks = {}; }
+    },
+
+    save() {
+      if (this.url) localStorage.setItem(LS_PREFIX + this.url, JSON.stringify(this.checks));
+    },
+
+    setCheck(stepId, value) { this.checks[stepId] = value; this.save(); },
+    toggleExpand(stepId) { this.expanded[stepId] = !this.expanded[stepId]; },
+    progress() {
+      const done = TODO_STEPS.filter(s => this.checks[s.id]).length;
+      return { done, total: TODO_STEPS.length };
+    }
+  };
+
+  function renderStep(step, isAuto) {
+    const checked  = !!todoState.checks[step.id];
+    const expanded = !!todoState.expanded[step.id];
+    const cls = ['todo-item', isAuto ? 'auto' : '', checked ? 'done' : '', expanded ? 'expanded' : '']
+      .filter(Boolean).join(' ');
+    return `<div class="${cls}" data-id="${step.id}">
+      <div class="todo-item-header">
+        <input type="checkbox" class="todo-cb"${checked ? ' checked' : ''} data-id="${step.id}" aria-label="${step.label}">
+        <span class="todo-label">${step.label}</span>
+        <span class="todo-chevron">&#9654;</span>
+      </div>
+      <div class="todo-detail">${step.detail}</div>
+    </div>`;
+  }
+
+  function renderTodo() {
+    if (!todoState.url) {
+      todoList.innerHTML = '';
+      todoProgress.textContent = '';
+      todoProgress.classList.remove('has-page', 'all-done');
+      return;
+    }
+    const { done, total } = todoState.progress();
+    todoProgress.textContent = `${done}/${total}`;
+    todoProgress.classList.add('has-page');
+    todoProgress.classList.toggle('all-done', done === total);
+
+    todoList.innerHTML =
+      TODO_STEPS.map(s => renderStep(s, false)).join('') +
+      `<div class="todo-section-hd">Automated — verify if missed</div>` +
+      AUTO_STEPS.map(s => renderStep(s, true)).join('');
+
+    todoList.querySelectorAll('.todo-cb').forEach(cb => {
+      cb.addEventListener('change', e => {
+        e.stopPropagation();
+        todoState.setCheck(cb.dataset.id, cb.checked);
+        renderTodo();
+      });
+    });
+    todoList.querySelectorAll('.todo-item-header').forEach(header => {
+      header.addEventListener('click', e => {
+        if (e.target.classList.contains('todo-cb')) return;
+        todoState.toggleExpand(header.closest('.todo-item').dataset.id);
+        renderTodo();
+      });
+    });
+  }
+
+  renderTodo();
 
   function collapseparagraphs(html) {
     return html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gm, (_, attrs, inner) =>
@@ -948,6 +1258,8 @@ function infoTableCleanup(t) {
       const rawHTML = await res.text();
       let cleaned = cleanupHTML(rawHTML);
       currentUrl = url;
+      todoState.load(url);
+      renderTodo();
 
       fetchBtn.textContent = 'Formatting…';
       try {
