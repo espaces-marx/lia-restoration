@@ -977,13 +977,28 @@ function infoTableCleanup(t) {
   });
 
   validateBtn.addEventListener('click', async () => {
-    const html = editor.getValue();
+    let html = editor.getValue();
     if (!html) return;
 
     validateBtn.disabled = true;
-    validateBtn.textContent = 'Validating…';
 
     try {
+      validateBtn.textContent = 'Formatting…';
+      try {
+        html = await prettier.format(html, {
+          parser: 'html',
+          plugins: [prettierHtml],
+          printWidth: 9999,
+          tabWidth: 2,
+          htmlWhitespaceSensitivity: 'css',
+        });
+        html = collapseparagraphs(html);
+        editor.setValue(html, -1);
+      } catch (e) {
+        console.warn('Prettier failed before validation:', e);
+      }
+
+      validateBtn.textContent = 'Validating…';
       const res = await fetch('https://validator.w3.org/nu/?out=json', {
         method: 'POST',
         headers: { 'Content-Type': 'text/html; charset=utf-8' },
