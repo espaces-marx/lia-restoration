@@ -519,7 +519,7 @@ Contact the Director of the LIA.
   <li><a href="#paragraphs">Paragraphs</a></li>
   <li><a href="#table-list-cleanup">Table and List Cleanup</a></li>
   <li><a href="#lenin-header">V. I. Lenin Header</a></li>
-  <li><a href="#footer-table">Footer Table</a></li>
+  <li><a href="#footer-table">Footer Tables (partially automated)</a></li>
   <li><a href="#guess-links">GUESS Links</a></li>
   <li><a href="#placeholder-footnote">Placeholder Footnotes</a></li>
   <li><a href="#html-conversion">HTML5 Conversion (partially automated)</a></li>
@@ -599,7 +599,7 @@ Text for illustration purposes.
   </tr>
 </table>
 
-<p id="footer-table"><b>Footer Tables</b></p>
+<p id="footer-table"><b>Footer Tables (partially automated)</b></p>
 
 <p>Replace footer tables with the following format. If a work is not part of a multi-chapter work then remove the first table before the <span style="color:blue">&lt;hr&gt;</span> tag.</p>
 
@@ -829,6 +829,7 @@ function cleanupHTML(rawHTML) {
   t = endDocCleanup(t);
   t = htmlCleanup(t);
   t = infoTableCleanup(t);
+  t = footerCleanup(t);
   t = t.replaceAll(/<span>(.+)(\s+)(.+)<\/span>/gm, '$1 $3');
 
   return t;
@@ -992,6 +993,83 @@ function infoTableCleanup(t) {
   t = t.replaceAll(`<td style="text-align: center;  width: 33%;">`, `    <td style="text-align: center;  width: 33%;">`);
   return t;
 }
+
+function extractLinks(html) {
+  const links = [];
+  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const attrs = m[1];
+    const href  = (/href="([^"]*)"/.exec(attrs) || [])[1] ?? '';
+    const title = (/title="([^"]*)"/.exec(attrs) || [])[1] ?? '';
+    links.push({
+      href,
+      title,
+      text: m[2].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+    });
+  }
+  return links;
+}
+
+function footerCleanup(t) {
+  t = t.replace(/<p\s+class="margin-bottom">[\s\S]*?<\/p>\s*/g, '');
+
+  t = t.replace(
+    /<div[^>]*>\s*<table(?![^>]*t2h-foot)[^>]*>([\s\S]*?)<\/table>\s*<\/div>\s*(<hr[^>]*class="end"[^>]*>)/g,
+    (match, inner, hr) => {
+      const links = extractLinks(inner).filter(l => l.text);
+      if (links.length === 0) return match;
+      const prev = links.length >= 2 ? links[0] : null;
+      const next = links.length >= 2 ? links[1] : links[0];
+      const prevHref = prev ? prev.href.replace(/#.*$/, '') : '';
+      const nextHref = next.href.replace(/#.*$/, '');
+      return `<table class="footer">
+  <tr>
+    <td class="footer-backward">${prev ? `<a href="${prevHref}">${prev.text}</a>` : ''}</td>
+    <td>|</td>
+    <td class="footer-forward"><a href="${nextHref}">${next.text}</a></td>
+  </tr>
+  <tr><td colspan="3"><a href="index.htm">Document Index</a></td></tr>
+</table>
+${hr}`;
+    }
+  );
+
+  t = t.replace(
+    /<div[^>]*>\s*<table[^>]*t2h-foot[^>]*>([\s\S]*?)<\/table>\s*<\/div>/g,
+    (_, inner) => {
+      const links = extractLinks(inner);
+      const backward  = links.find(l => /backward/i.test(l.text));
+      const forward   = links.find(l => /forward/i.test(l.text));
+      const worksIdx  = links.find(l => /works/i.test(l.text));
+      const volume    = links.find(l => /volume/i.test(l.text) || /volume/i.test(l.href));
+      const collected = links.find(l => /collected/i.test(l.text));
+      const liaIdx    = links.find(l => /l\.i\.a\.|lia/i.test(l.text));
+      const volHref   = volume ? volume.href.replace(/#.*$/, '') : '';
+      const volText   = volume ? volume.text : 'Current Volume';
+      const backTitle = backward?.title ? ` title="${backward.title}"` : '';
+      const fwdTitle  = forward?.title  ? ` title="${forward.title}"`  : '';
+      return `<table class="footer">
+  <tr>
+    <td class="footer-backward" colspan="3"><a href="${backward?.href ?? ''}"${backTitle}>&lt; Backwards</a></td>
+    <td></td>
+    <td class="footer-forward" colspan="3"><a href="${forward?.href ?? ''}"${fwdTitle}>Forwards &gt;</a></td>
+  </tr>
+  <tr>
+    <td><a href="${worksIdx?.href ?? ''}">Works Index</a></td>
+    <td>|</td>
+    <td><a href="${volHref}">${volText}</a></td>
+    <td>|</td>
+    <td><a href="${collected?.href ?? ''}">Collected Works</a></td>
+    <td>|</td>
+    <td><a href="${liaIdx?.href ?? ''}">L.I.A. Index</a></td>
+  </tr>
+</table>`;
+    }
+  );
+
+  return t;
+}
 </script>
 
 <script type="module">
@@ -1053,36 +1131,6 @@ Text for illustration purposes.
 <pre class="ex"><span class="tg">&lt;table&gt;</span>
   <span class="tg">&lt;tr&gt;</span>
     <span class="tg">&lt;td&gt;</span>Example Text<span class="tg">&lt;/td&gt;</span>
-  <span class="tg">&lt;/tr&gt;</span>
-<span class="tg">&lt;/table&gt;</span></pre>`
-    },
-    {
-      id: 'footer-tables',
-      label: 'Footer Tables',
-      detail: `<p>Replace footer tables with the standard template. Omit the first table for single-chapter works.</p>
-<pre class="ex"><span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
-  <span class="tg">&lt;tr&gt;</span>
-    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Previous Chapter<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
-    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Next Chapter<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-  <span class="tg">&lt;/tr&gt;</span>
-  <span class="tg">&lt;tr&gt;&lt;td</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Document Index<span class="tg">&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;</span>
-<span class="tg">&lt;/table&gt;</span>
-<span class="tg">&lt;hr</span> <span class="at">class</span>=<span class="vl">"end"</span><span class="tg">&gt;</span>
-<span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
-  <span class="tg">&lt;tr&gt;</span>
-    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>&amp;lt; Backwards<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Forwards &amp;gt;<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-  <span class="tg">&lt;/tr&gt;</span>
-  <span class="tg">&lt;tr&gt;</span>
-    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../index.htm"</span><span class="tg">&gt;</span>Works Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/template.htm"</span><span class="tg">&gt;</span>Current Volume<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/index.htm"</span><span class="tg">&gt;</span>Collected Works<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
-    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../../index.htm"</span><span class="tg">&gt;</span>L.I.A. Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
   <span class="tg">&lt;/tr&gt;</span>
 <span class="tg">&lt;/table&gt;</span></pre>`
     },
@@ -1159,6 +1207,36 @@ Text for illustration purposes.
       detail: `<p>Removed <code>.txt</code> source links, README links, and <code>class="title"</code> from headings.</p>
 <pre class="ex"><span class="tg">&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/v13pp72.txt"</span><span class="tg">&gt;</span>1972<span class="tg">&lt;/a&gt;</span>  →  1972
 <span class="tg">&lt;h3</span> <span class="at">class</span>=<span class="vl">"title"</span><span class="tg">&gt;</span>Title<span class="tg">&lt;/h3&gt;</span>           →  <span class="tg">&lt;h3&gt;</span>Title<span class="tg">&lt;/h3&gt;</span></pre>`
+    },
+    {
+      id: 'auto-footer',
+      label: 'Footer Tables',
+      detail: `<p>Footer tables restructured to standard format. For multi-chapter works, the Document Index links to <code>index.htm</code> — verify it's correct.</p>
+<pre class="ex"><span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"i.htm"</span><span class="tg">&gt;</span>I<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"iii.htm"</span><span class="tg">&gt;</span>III<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+  <span class="tg">&lt;tr&gt;&lt;td</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"index.htm"</span><span class="tg">&gt;</span>Document Index<span class="tg">&lt;/a&gt;&lt;/td&gt;&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span>
+<span class="tg">&lt;hr</span> <span class="at">class</span>=<span class="vl">"end"</span><span class="tg">&gt;</span>
+<span class="tg">&lt;table</span> <span class="at">class</span>=<span class="vl">"footer"</span><span class="tg">&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-backward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>&amp;lt; Backwards<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td</span> <span class="at">class</span>=<span class="vl">"footer-forward"</span> <span class="at">colspan</span>=<span class="vl">"3"</span><span class="tg">&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"..."</span><span class="tg">&gt;</span>Forwards &amp;gt;<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+  <span class="tg">&lt;tr&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../index.htm"</span><span class="tg">&gt;</span>Works Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/volume10.htm"</span><span class="tg">&gt;</span>Volume 10<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../cw/index.htm"</span><span class="tg">&gt;</span>Collected Works<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;</span>|<span class="tg">&lt;/td&gt;</span>
+    <span class="tg">&lt;td&gt;&lt;a</span> <span class="at">href</span>=<span class="vl">"../../../index.htm"</span><span class="tg">&gt;</span>L.I.A. Index<span class="tg">&lt;/a&gt;&lt;/td&gt;</span>
+  <span class="tg">&lt;/tr&gt;</span>
+<span class="tg">&lt;/table&gt;</span></pre>`
     }
   ];
 
