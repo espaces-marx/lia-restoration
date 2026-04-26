@@ -452,7 +452,7 @@
     >
     <button id="fetch-btn">Fetch &amp; Clean</button>
     <div class="toolbar-sep"></div>
-    <button id="validate-btn" disabled>Validate</button>
+    <button id="validate-btn" disabled>Clean &amp; Validate</button>
     <button id="download-btn" disabled>Download HTML</button>
     <div class="toolbar-sep"></div>
     <button id="instructions-btn" title="Instructions &amp; help" aria-label="Help">?</button>
@@ -1093,7 +1093,7 @@ Text for illustration purposes.
     {
       id: 'validate-submit',
       label: 'Validate & Submit',
-      detail: `<p>Click <strong>Validate</strong>. Fix all errors (red), review warnings (yellow).</p>
+      detail: `<p>Click <strong>Clean &amp; Validate</strong>. Fix all errors (red), review warnings (yellow).</p>
 <p>Optionally add to the info header: <code>Refactored by: [Your Name]</code></p>
 <p>Click <strong>Download HTML</strong> and email the file + URL to the LIA administrator.</p>`
     }
@@ -1307,6 +1307,9 @@ Text for illustration purposes.
     validateBtn.disabled = true;
 
     try {
+      validateBtn.textContent = 'Cleaning…';
+      html = cleanupHTML(html);
+
       validateBtn.textContent = 'Formatting…';
       try {
         html = await prettier.format(html, {
@@ -1390,7 +1393,7 @@ Text for illustration purposes.
       alert(`Validation failed: ${err.message}`);
     } finally {
       validateBtn.disabled = false;
-      validateBtn.textContent = 'Validate';
+      validateBtn.textContent = 'Clean & Validate';
     }
   });
 
