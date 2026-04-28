@@ -2,7 +2,7 @@
 
 Browser-based tool for cleaning up HTML pages in the [Lenin Internet Archive](https://www.marxists.org/archive/lenin/works/cleanup-list.htm) on marxists.org.
 
-Hosted at **https://www.espaces-marx.eu/tools/lia-restoration** — or just open `lia-restoration.html` locally. No installation, no dependencies.
+Hosted at **[espaces-marx.eu/tools/lia-restoration](https://www.espaces-marx.eu/tools/lia-restoration)** — or just open `lia-restoration.html` locally. No installation, no dependencies.
 
 ## Workflow
 
