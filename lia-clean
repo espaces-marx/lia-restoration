@@ -1,0 +1,334 @@
+#!/usr/bin/env node
+'use strict';
+
+const fs   = require('fs');
+const path = require('path');
+const { spawnSync } = require('child_process');
+
+// ---------------------------------------------------------------------------
+// Cleanup pipeline (mirrors the browser tool's first <script> block)
+// ---------------------------------------------------------------------------
+
+function cleanupHTML(t) {
+  t = entityCleanup(t);
+  t = removeSpaces(t);
+  t = leninHeader(t);
+  t = t.replaceAll(/<!--[^>]*-->/gm, '');
+  t = removeMouseover(t);
+  t = linkCleanup(t);
+  t = selfcloseCleanup(t);
+  t = removeSpaces(t);
+  t = t.replaceAll(/<a id='[^']*'>/gm, '');
+  t = headCleanup(t);
+  t = paragraphCleanup(t);
+  t = endnoteCleanup(t);
+  t = classRemoval(t);
+  t = characterCleanup(t);
+  t = infoCleanup(t);
+  t = endDocCleanup(t);
+  t = htmlCleanup(t);
+  t = infoTableCleanup(t);
+  t = footerCleanup(t);
+  t = t.replaceAll(/<span>(.+)(\s+)(.+)<\/span>/gm, '$1 $3');
+  return t;
+}
+
+function entityCleanup(t) {
+  t = t.replaceAll(`&nbsp;`, ` `);
+  t = t.replaceAll(`&#160;`, ` `);
+  t = t.replaceAll(`&#8212;`, `—`);
+  t = t.replaceAll(`&#8216;`, `'`);
+  t = t.replaceAll(`&#8217;`, `'`);
+  t = t.replaceAll(`&#8220;`, `"`);
+  t = t.replaceAll(`&#8221;`, `"`);
+  t = t.replaceAll(`&eacute;`, `é`);
+  t = t.replaceAll(`&uuml;`, `ü`);
+  return t;
+}
+
+function removeSpaces(t) {
+  t = t.replaceAll(`      `, ``);
+  t = t.replaceAll(`    `, ``);
+  t = t.replaceAll(`  `, ``);
+  t = t.replaceAll(`  `, ``);
+  t = t.replaceAll(`\t`, ``);
+  t = t.replaceAll(`\n\n \n`, ``);
+  t = t.replaceAll(`\n\n  \n`, ``);
+  t = t.replaceAll(`\n\n   \n`, ``);
+  return t;
+}
+
+function leninHeader(t) {
+  t = t.replaceAll(`<h2>\n<a title`, `<h2><a title`);
+  t = t.replaceAll(`</a>\n\n<a title`, `</a> <a title`);
+  t = t.replaceAll(/<h2><a [^>]*\">V\. I\.(.+)Lenin<\/a><\/h2>/gm, `<h2>Vladimir Ilyich Lenin</h2>`);
+  return t;
+}
+
+function removeMouseover(t) {
+  t = t.replaceAll(/<a onmouseover="[^"]*" onmouseout="[^"]*">(\w+)<\/a>/gm, `$1`);
+  t = t.replaceAll(/<a onmouseover="[^"]*" onmouseout="[^"]*">(\w+\W+)<\/a>/gm, `$1`);
+  t = t.replaceAll(/<a onmouseover="[^"]*" onmouseout="[^"]*">(\s+)<\/a>/gm, ` `);
+  t = t.replaceAll(/<a onmouseover="[^"]*" onmouseout="[^"]*"><\/a>/gm, ``);
+  return t;
+}
+
+function selfcloseCleanup(t) {
+  t = t.replaceAll(`  />`, `>`);
+  t = t.replaceAll(` />`, `>`);
+  t = t.replaceAll(`/>`, `>`);
+  return t;
+}
+
+function linkCleanup(t) {
+  t = t.replaceAll(` <a name="notes"></a>`, ``);
+  t = t.replaceAll(` <a name="footnotes"></a>`, ``);
+  t = t.replaceAll(` <a name="endnotes"></a>`, ``);
+  t = t.replaceAll(`a class="ednote"`, `a`);
+  t = t.replaceAll(`a class="anote"`, `a`);
+  t = t.replaceAll(`a class="endnote"`, `a`);
+  t = t.replaceAll(`<a name=`, `<a id=`);
+  t = t.replaceAll(`<a\n name=`, `<a id=`);
+  t = t.replaceAll(`<a \n name=`, `<a id=`);
+  t = t.replaceAll(`<a\n id=`, `<a id=`);
+  t = t.replaceAll(`"\n href=`, `" href=`);
+  t = t.replaceAll(`<sup><a`, `<sup class="endnote"><a`);
+  t = t.replaceAll(`class="ednote"`, `class="endnote"`);
+  t = t.replaceAll(/" name="[^"]*"/gm, `"`);
+  return t;
+}
+
+function headCleanup(t) {
+  t = t.replaceAll(/<!DOCTYPE [^>]*>/gm, `<!DOCTYPE html>`);
+  t = t.replaceAll(`<html xmlns="http://www.w3.org/1999/xhtml">`, `<html lang="en">`);
+  t = t.replaceAll(`<html lang="en"><head>`, `<html lang="en">\n<head>`);
+  t = t.replaceAll(`<!DOCTYPE html>\n\n\n<html lang="en">`, `<!DOCTYPE html>\n\n<html lang="en">`);
+  t = t.replaceAll(`<meta name="generator" content="http://www.marxists.org/archive/lenin/howto/tx2html.el">\n`, ``);
+  t = t.replaceAll(/<meta name="generated" content="[^"]*">/gm, ``);
+  t = t.replaceAll(`">\n\n\n\n\n<title>`, `">\n\n<title>`);
+  t = t.replaceAll(`<meta`, `  <meta`);
+  t = t.replaceAll(`<link`, `  <link`);
+  t = t.replaceAll(`<title>`, `  <title>`);
+  return t;
+}
+
+function paragraphCleanup(t) {
+  t = t.replaceAll(`<p>\n\n\n`, `<p>`);
+  t = t.replaceAll(`<p>\n\n`, `<p>`);
+  t = t.replaceAll(`<p>\n`, `<p>`);
+  t = t.replaceAll(`\n\n\n</p>`, `</p>`);
+  t = t.replaceAll(`\n\n</p>`, `</p>`);
+  t = t.replaceAll(`\n</p>`, `</p>`);
+  t = t.replaceAll(`<p class="fst">\n\n`, `<p class="fst">`);
+  t = t.replaceAll(`<p class="fst">\n`, `<p class="fst">`);
+  t = t.replaceAll(`<p class="endnote">\n`, `<p class="endnote">`);
+  t = t.replaceAll(`</p><p>`, `</p>\n\n<p>`);
+  t = t.replaceAll(`</p>\n\n \n\n<p>`, `</p>\n\n<p>`);
+  t = t.replaceAll(`</p>\n\n\n\n<hr>`, `</p>\n\n<hr>`);
+  t = t.replaceAll(`<p class="quote">\n`, `<p class="quote">`);
+  t = t.replaceAll(`<p class="sig">\n`, `<p class="sig">`);
+  t = t.replaceAll(`<p class="placedate">\n`, `<p class="placedate">`);
+  return t;
+}
+
+function endnoteCleanup(t) {
+  t = t.replaceAll(`\n—<em>Lenin</em>`, `—<em>Lenin</em>`);
+  t = t.replaceAll(`<h3>Notes</h3>\n\n\n\n\n\n<p class="endnote">`, `<h3>Notes</h3>\n\n<p class="endnote">`);
+  t = t.replaceAll(`<h3>Notes</h3>\n\n\n\n\n\n\n\n\n\n<p class="endnote">`, `<h3>Notes</h3>\n\n<p class="endnote">`);
+  t = t.replaceAll(`</p>\n\n\n\n\n\n<p class="endnote">`, `</p>\n\n<p class="endnote">`);
+  t = t.replaceAll(`</p>\n\n\n\n<p class="endnote">`, `</p>\n\n<p class="endnote">`);
+  t = t.replaceAll(`</p>\n\n\n\n\n\n\n\n<p class="endnote">`, `</p>\n\n<p class="endnote">`);
+  return t;
+}
+
+function classRemoval(t) {
+  t = t.replaceAll(` class="supratitle"`, ``);
+  t = t.replaceAll(` class="subtitle"`, ``);
+  t = t.replaceAll(` class="chapnumb"`, ``);
+  t = t.replaceAll(` class="chaptitl"`, ``);
+  t = t.replaceAll(` class="inline"`, ``);
+  t = t.replaceAll(` class="title"`, ``);
+  t = t.replaceAll(` title="Endnotes HR"`, ``);
+  return t;
+}
+
+function characterCleanup(t) {
+  t = t.replaceAll(`\\"a`, `ä`);
+  t = t.replaceAll(`\\"A`, `Ä`);
+  t = t.replaceAll(`\\"i`, `ï`);
+  t = t.replaceAll(`\\"I`, `Ï`);
+  t = t.replaceAll(`\\"o`, `ö`);
+  t = t.replaceAll(`\\"O`, `Ö`);
+  t = t.replaceAll(`\\"u`, `ü`);
+  t = t.replaceAll(`\\"U`, `Ü`);
+  t = t.replaceAll(`\\thinspace`, ``);
+  return t;
+}
+
+function infoCleanup(t) {
+  t = t.replaceAll(/<a [^>]*\.txt">(\w+)<\/a>/gm, `$1`);
+  t = t.replaceAll(/<a [^>]*\.txt">(\W+)<\/a>/gm, `$1`);
+  return t;
+}
+
+function endDocCleanup(t) {
+  t = t.replaceAll(`</p>\n\n\n\n\n</body>`, `</p>\n\n</body>`);
+  t = t.replaceAll(`</html>\n`, `</html>`);
+  return t;
+}
+
+function htmlCleanup(t) {
+  t = t.replaceAll(`<center>`, `<div style="text-align:center">`);
+  t = t.replaceAll(`</center>`, `</div>`);
+  t = t.replaceAll(`align="center"`, `style="text-align: center;"`);
+  return t;
+}
+
+function infoTableCleanup(t) {
+  t = t.replaceAll(`class="info" style="text-align: center;" width="80%"`, `class="info" style="width: 80%;"`);
+  t = t.replaceAll(`<td style="text-align: center;" width="33%">`, `<td style="text-align: center;  width: 33%;">`);
+  t = t.replaceAll(`<tr><td style="text-align: center;  width: 33%;">`, `  <tr>\n<td style="text-align: center;  width: 33%;">`);
+  t = t.replaceAll(`<td style="text-align: center;  width: 33%;">`, `    <td style="text-align: center;  width: 33%;">`);
+  return t;
+}
+
+function extractLinks(html) {
+  const links = [];
+  const re = /<a\b([^>]*)>([\s\S]*?)<\/a>/g;
+  let m;
+  while ((m = re.exec(html)) !== null) {
+    const attrs = m[1];
+    const href  = (/href="([^"]*)"/.exec(attrs) || [])[1] ?? '';
+    const title = (/title="([^"]*)"/.exec(attrs) || [])[1] ?? '';
+    links.push({
+      href,
+      title,
+      text: m[2].replace(/<[^>]*>/g, '').replace(/\s+/g, ' ').trim(),
+    });
+  }
+  return links;
+}
+
+function footerCleanup(t) {
+  t = t.replace(/<p\s+class="margin-bottom">[\s\S]*?<\/p>\s*/g, '');
+
+  t = t.replace(
+    /<div[^>]*>\s*<table(?![^>]*t2h-foot)[^>]*>([\s\S]*?)<\/table>\s*<\/div>\s*(<hr[^>]*class="end"[^>]*>)/g,
+    (match, inner, hr) => {
+      const links = extractLinks(inner).filter(l => l.text);
+      if (links.length === 0) return match;
+      const prev = links.length >= 2 ? links[0] : null;
+      const next = links.length >= 2 ? links[1] : links[0];
+      const prevHref = prev ? prev.href.replace(/#.*$/, '') : '';
+      const nextHref = next.href.replace(/#.*$/, '');
+      return `<table class="footer">
+  <tr>
+    <td class="footer-backward">${prev ? `<a href="${prevHref}">${prev.text}</a>` : ''}</td>
+    <td>|</td>
+    <td class="footer-forward"><a href="${nextHref}">${next.text}</a></td>
+  </tr>
+  <tr><td colspan="3"><a href="index.htm">Document Index</a></td></tr>
+</table>
+${hr}`;
+    }
+  );
+
+  t = t.replace(
+    /<div[^>]*>\s*<table[^>]*t2h-foot[^>]*>([\s\S]*?)<\/table>\s*<\/div>/g,
+    (_, inner) => {
+      const links    = extractLinks(inner);
+      const backward  = links.find(l => /backward/i.test(l.text));
+      const forward   = links.find(l => /forward/i.test(l.text));
+      const worksIdx  = links.find(l => /works/i.test(l.text));
+      const volume    = links.find(l => /volume/i.test(l.text) || /volume/i.test(l.href));
+      const collected = links.find(l => /collected/i.test(l.text));
+      const liaIdx    = links.find(l => /l\.i\.a\.|lia/i.test(l.text));
+      const volHref   = volume ? volume.href.replace(/#.*$/, '') : '';
+      const volText   = volume ? volume.text : 'Current Volume';
+      const backTitle = backward?.title ? ` title="${backward.title}"` : '';
+      const fwdTitle  = forward?.title  ? ` title="${forward.title}"`  : '';
+      return `<table class="footer">
+  <tr>
+    <td class="footer-backward" colspan="3"><a href="${backward?.href ?? ''}"${backTitle}>&lt; Backwards</a></td>
+    <td></td>
+    <td class="footer-forward" colspan="3"><a href="${forward?.href ?? ''}"${fwdTitle}>Forwards &gt;</a></td>
+  </tr>
+  <tr>
+    <td><a href="${worksIdx?.href ?? ''}">Works Index</a></td>
+    <td>|</td>
+    <td><a href="${volHref}">${volText}</a></td>
+    <td>|</td>
+    <td><a href="${collected?.href ?? ''}">Collected Works</a></td>
+    <td>|</td>
+    <td><a href="${liaIdx?.href ?? ''}">L.I.A. Index</a></td>
+  </tr>
+</table>
+<p class="margin-bottom">&nbsp;</p>`;
+    }
+  );
+
+  return t;
+}
+
+function collapseParagraphs(html) {
+  return html.replace(/<p([^>]*)>([\s\S]*?)<\/p>/gm, (_, attrs, inner) =>
+    `<p${attrs}>${inner.replace(/\s+/g, ' ').trim()}</p>`
+  );
+}
+
+// ---------------------------------------------------------------------------
+// Prettier via npx (falls back silently if unavailable)
+// ---------------------------------------------------------------------------
+
+function runPrettier(html) {
+  const args = [
+    'prettier',
+    '--stdin-filepath', 'x.html',
+    '--print-width', '9999',
+    '--tab-width', '2',
+    '--html-whitespace-sensitivity', 'css',
+  ];
+  const result = spawnSync('npx', args, {
+    input: html,
+    encoding: 'utf8',
+    timeout: 60_000,
+  });
+  if (result.status === 0 && result.stdout) return result.stdout;
+  process.stderr.write(`[lia-clean] prettier skipped: ${result.stderr?.trim() || 'unknown error'}\n`);
+  return html;
+}
+
+// ---------------------------------------------------------------------------
+// CLI
+// ---------------------------------------------------------------------------
+
+const args = process.argv.slice(2).filter(a => a !== '--');
+const dryRun = args.includes('--dry');
+const files  = args.filter(a => !a.startsWith('--'));
+
+if (files.length === 0) {
+  process.stderr.write(`Usage: lia-clean [--dry] <file.html> [file2.html ...]\n`);
+  process.exit(1);
+}
+
+for (const file of files) {
+  const abs = path.resolve(file);
+  if (!fs.existsSync(abs)) {
+    process.stderr.write(`[lia-clean] not found: ${file}\n`);
+    continue;
+  }
+
+  process.stderr.write(`[lia-clean] ${file} … `);
+  const raw = fs.readFileSync(abs, 'utf8');
+
+  let out = cleanupHTML(raw);
+  out = runPrettier(out);
+  out = collapseParagraphs(out);
+
+  if (dryRun) {
+    process.stdout.write(out);
+  } else {
+    fs.writeFileSync(abs, out, 'utf8');
+    process.stderr.write(`done\n`);
+  }
+}
