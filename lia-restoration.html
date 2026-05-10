@@ -1318,6 +1318,13 @@ ${hr}`;
     );
   }
 
+  function removeVoidSlashes(html) {
+    return html.replace(
+      /<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(\s[^>]*)?\s*\/>/gi,
+      (_, tag, attrs) => `<${tag}${attrs || ''}>`
+    );
+  }
+
   function injectBase(htmlStr, pageUrl) {
     const base = pageUrl.substring(0, pageUrl.lastIndexOf('/') + 1);
     const tag = `<base href="${base}">`;
@@ -1371,6 +1378,7 @@ ${hr}`;
       }
 
       cleaned = collapseparagraphs(cleaned);
+      cleaned = removeVoidSlashes(cleaned);
 
       editor.setValue(cleaned, -1);
       previewFrame.srcdoc = injectBase(cleaned, url);
@@ -1404,6 +1412,7 @@ ${hr}`;
           htmlWhitespaceSensitivity: 'css',
         });
         html = collapseparagraphs(html);
+        html = removeVoidSlashes(html);
         editor.setValue(html, -1);
       } catch (e) {
         console.warn('Prettier failed before validation:', e);

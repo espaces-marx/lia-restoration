@@ -276,6 +276,13 @@ function collapseParagraphs(html) {
   );
 }
 
+function removeVoidSlashes(html) {
+  return html.replace(
+    /<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)(\s[^>]*)?\s*\/>/gi,
+    (_, tag, attrs) => `<${tag}${attrs || ''}>`
+  );
+}
+
 // ---------------------------------------------------------------------------
 // Prettier via npx (falls back silently if unavailable)
 // ---------------------------------------------------------------------------
@@ -324,6 +331,7 @@ for (const file of files) {
   let out = cleanupHTML(raw);
   out = runPrettier(out);
   out = collapseParagraphs(out);
+  out = removeVoidSlashes(out);
 
   if (dryRun) {
     process.stdout.write(out);
