@@ -77,6 +77,8 @@ function selfcloseCleanup(t) {
   t = t.replaceAll(`  />`, `>`);
   t = t.replaceAll(` />`, `>`);
   t = t.replaceAll(`/>`, `>`);
+  t = t.replace(/<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)([^>]*?) >/gi,
+    (_, tag, attrs) => `<${tag}${attrs}>`);
   return t;
 }
 
@@ -306,7 +308,7 @@ function informationFormat(html) {
           const trimmed = part.replace(/^\s+/, '');
           if (!trimmed) return null;
           return i < parts.length - 1
-            ? `${innerIndent}${trimmed}<br >`
+            ? `${innerIndent}${trimmed}<br>`
             : `${innerIndent}${trimmed}`;
         })
         .filter(Boolean);
