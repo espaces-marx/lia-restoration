@@ -28,8 +28,8 @@ Contact <a href="../../../admin/volunteers/biographies/dwalters.htm">the Directo
 <ul style="margin-left: 8%">
   <li><a href="#setup">Setup</a></li>
   <li><a href="#script">Cleanup Script</a></li>
-  <li><a href="#paragraphs">Paragraphs</a></li>
-  <li><a href="#table-list-cleanup">Table and List Cleanup</a></li>
+  <li><a href="#paragraphs">Paragraphs (automated)</a></li>
+  <li><a href="#table-list-cleanup">Table and List Cleanup (automated)</a></li>
   <li><a href="#lenin-header">V. I. Lenin Header</a></li>
   <li><a href="#footer-table">Footer Table</a></li>
   <li><a href="#guess-links">GUESS Links</a></li>
@@ -116,6 +116,8 @@ function selfcloseCleanup() {
   newText = newText.replaceAll(`  />`, `>`);
   newText = newText.replaceAll(` />`, `>`);
   newText = newText.replaceAll(`/>`, `>`);
+  newText = newText.replace(/<(area|base|br|col|embed|hr|img|input|link|meta|param|source|track|wbr)([^>]*?) >/gi,
+    (_, tag, attrs) => `<${tag}${attrs}>`);
   return newText;
 }
 
@@ -205,6 +207,23 @@ function characterCleanup() {
   return newText;
 }
 
+function infoCleanup() {
+  newText = newText.replaceAll(/<a [^>]*\.txt">(\w+)<\/a>/gm, `$1`);
+  newText = newText.replaceAll(/<a [^>]*\.txt">(\W+)<\/a>/gm, `$1`);
+  newText = newText.replaceAll(`pages<span class="pages">`, `pages <span class="pages">`);
+  newText = newText.replaceAll(/<span class="pages">(.+)<\/span>/gm, `$1`);
+  newText = newText.replaceAll(`pages<span class="page">`, `pages <span class="page">`);
+  newText = newText.replaceAll(/<span class="page">(.+)<\/span>/gm, `$1`);
+  newText = newText.replaceAll(`<p class="information">\n\n<span`, `<p class="information">\n<span`);
+  newText = newText.replaceAll(`<br><span class="info">`, `<br>\n\n<span class="info">`);
+  newText = newText.replaceAll(`<span class="info" style="text-indent: 0%">\n\nPublished:`, `<span class="info" style="text-indent: 0%">Published:`);
+  newText = newText.replaceAll(`<span class="info" style="text-indent: 0%">\n\nWritten:`, `<span class="info" style="text-indent: 0%">Written:`);
+  newText = newText.replaceAll(`<span class="info">\n\n`, `<span class="info">`);
+  newText = newText.replaceAll(`</span>\n\n`, `</span> `);
+  newText = newText.replaceAll(`\n\n<br>`, `<br>`);
+  return newText;
+}
+
 function endDocCleanup() {
   newText = newText.replaceAll(`</p>\n\n\n\n\n</body>`, `</p>\n\n</body>`);
   newText = newText.replaceAll(`</html>\n`, `</html>`);
@@ -262,7 +281,9 @@ async function processText() {
   newText = classRemoval();
   
   newText = characterCleanup();
-  
+
+  newText = infoCleanup();
+
   newText = endDocCleanup();
   
   newText = htmlCleanup();
@@ -303,130 +324,6 @@ function copyText() {
 window.processText = processText;
 window.copyText = copyText;
 </script>
-
-<!-- Paragraphs -->
-
-<p id="paragraphs"><b>Paragraphs</b></p>
-
-<p>Paragraphs should all be one line (use Ctrl + J on Notepad++). This also goes for any other element in general but the problem is most prevalent with paragraphs.</p>
-
-<p>Like this:</p>
-
-<table class="white">
-  <tbody><tr>
-    <td>      
-<pre><span style="color:blue">&lt;p&gt;</span>Text for illustration purposes. Text for illustration purposes. Text for illustration purposes. Text for illustration purposes. Text for illustration purposes.<span style="color:blue">&lt;/p&gt;</span></pre>
-    </td>
-  </tr>
-</tbody></table>
-
-<p>Instead of this:</p>
-
-<table class="white">
-  <tbody><tr>
-    <td>      
-<pre><span style="color:blue">&lt;p&gt;</span>
-Text for illustration purposes.
-Text for illustration purposes.
-Text for illustration purposes.
-Text for illustration purposes.
-Text for illustration purposes.
-<span style="color:blue">&lt;/p&gt;</span>
-</pre>
-    </td>
-  </tr>
-</tbody></table>
-
-<p>Making paragraphs one line will make it easier to use the search function for spelling and mark-up errors in future.</p>
-
-<p class="skip">&nbsp;</p>
-<p class="skip">&nbsp;</p>
-
-<!-- Table and List Cleanup -->
-
-<p id="table-list-cleanup"><b>Table and List Cleanup</b></p>
-
-<p>Tables and Lists need to be cleaned up to be more readable. We'll be following the W3 standard of 2 spaces for indentation for this.</p>
-
-<p>Tables:</p>
-
-<table class="white">
-  <tbody><tr>
-    <td>
-<pre><span style="color:blue">&lt;table&gt;</span>
-  <span style="color:blue">&lt;tr&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-  <span style="color:blue">&lt;/tr&gt;</span>
-      
-  <span style="color:blue">&lt;tr&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-  <span style="color:blue">&lt;/tr&gt;</span>
-  
-  <span style="color:blue">&lt;tr&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-    <span style="color:blue">&lt;td&gt;</span>Example Text<span style="color:blue">&lt;/td&gt;</span>
-  <span style="color:blue">&lt;/tr&gt;</span>
-<span style="color:blue">&lt;/table&gt;</span>
-</pre>
-    </td>
-  </tr>
-</tbody></table>
-
-<p>Unordered lists:</p>
-
-<table class="white">
-  <tbody><tr>
-    <td>
-<pre><span style="color:blue">&lt;ul&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>
-    <span style="color:blue">&lt;ul&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-    <span style="color:blue">&lt;/ul&gt;</span>
-  <span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-<span style="color:blue">&lt;/ul&gt;</span>
-</pre>
-    </td>
-  </tr>
-</tbody></table>
-
-<p>Ordered lists:</p>
-
-<table class="white">
-  <tbody><tr>
-    <td>
-<pre><span style="color:blue">&lt;ol&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>
-    <span style="color:blue">&lt;ol&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-      <span style="color:blue">&lt;li&gt;</span>Sublist Example Text<span style="color:blue">&lt;/li&gt;</span>
-    <span style="color:blue">&lt;/ol&gt;</span>
-  <span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-  <span style="color:blue">&lt;li&gt;</span>Example Text<span style="color:blue">&lt;/li&gt;</span>
-<span style="color:blue">&lt;/ol&gt;</span>
-</pre>
-    </td>
-  </tr>
-</tbody></table>
-
-<p class="skip">&nbsp;</p>
-<p class="skip">&nbsp;</p>
 
 <!-- V.I Lenin Header -->
 
@@ -569,6 +466,24 @@ Text for illustration purposes.
 <hr>
 
 <p>This section contains all the cleanup that is <em>usually</em> done by the script. We have included it in case they were missed by the script so that you can clean it up manually.</p>
+
+<!-- Paragraphs -->
+
+<p id="paragraphs"><b>Paragraphs (automated)</b></p>
+
+<p>Paragraphs are automatically collapsed to a single line by the script's <code>collapseParagraphs</code> step (which runs after Prettier). No manual action is needed.</p>
+
+<p class="skip">&nbsp;</p>
+<p class="skip">&nbsp;</p>
+
+<!-- Table and List Cleanup -->
+
+<p id="table-list-cleanup"><b>Table and List Cleanup (automated)</b></p>
+
+<p>Tables and lists are automatically reformatted to 2-space indentation by Prettier when the script runs. No manual action is needed.</p>
+
+<p class="skip">&nbsp;</p>
+<p class="skip">&nbsp;</p>
 
 <!-- HTML5 Conversion -->
 
